@@ -1,9 +1,10 @@
 ﻿  Imagetest.cpp
-C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_ImageFormating.h(14,6): warning C4091: 'typedef ': 변수를 선언하지 않으면 'imgform::RGBA_pixel' 왼쪽은 무시됩니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_ImageFormating.h(60,6): warning C4091: 'typedef ': 변수를 선언하지 않으면 'imgform::RGBA_pixel' 왼쪽은 무시됩니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_ImageFormating.h(117,22): warning C4309: '인수': 상수 값이 잘립니다.
 C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_FreeMemory.h(512,23): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
 C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_FreeMemory.h(507): message : 클래스 템플릿 멤버 함수 'void freemem::InfiniteArray<imgform::RGBA_pixel>::Init(size_t)'을(를) 컴파일하는 중입니다.
-C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_ImageFormating.h(35): message : 컴파일되는 함수 템플릿 인스턴스화 'void freemem::InfiniteArray<imgform::RGBA_pixel>::Init(size_t)'에 대한 참조를 확인하세요.
-C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_ImageFormating.h(22): message : 컴파일되는 클래스 템플릿 인스턴스화 'freemem::InfiniteArray<imgform::RGBA_pixel>'에 대한 참조를 확인하세요.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_ImageFormating.h(81): message : 컴파일되는 함수 템플릿 인스턴스화 'void freemem::InfiniteArray<imgform::RGBA_pixel>::Init(size_t)'에 대한 참조를 확인하세요.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_ImageFormating.h(68): message : 컴파일되는 클래스 템플릿 인스턴스화 'freemem::InfiniteArray<imgform::RGBA_pixel>'에 대한 참조를 확인하세요.
 LINK : warning LNK4075: '/INCREMENTAL'이(가) '/OPT:ICF' 사양으로 인해 무시됩니다.
 Imagetest.obj : warning LNK4075: '/EDITANDCONTINUE'이(가) '/OPT:ICF' 사양으로 인해 무시됩니다.
   ALL_Utillity.vcxproj -> C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\Debug\ALL_Utillity.exe

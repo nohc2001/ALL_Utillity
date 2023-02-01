@@ -2,6 +2,11 @@
 #include <complex>
 #include <math.h>
 #include <iostream>
+#include <cstdio>
+#include <cstring>
+#include <vector>
+#include <map>
+#include <queue>
 #include <valarray>
 #include "Utill_FreeMemory.h"
 
@@ -83,6 +88,8 @@ namespace reform {
 		x /= x.size();
 	}
 
+
+	// Fast Convolution
 	inline void fastConvolusion(CArray& a, CArray& b, Complex* resultdata_out, int rsiz) {
 		reformFM.ClearAll();
 		int maxsiz = (a.size() > b.size()) ? a.size() : b.size();
@@ -111,5 +118,117 @@ namespace reform {
 		for (int i = 0; i < m; ++i) {
 			resultdata_out[i] = aarr[i];
 		}
+	}
+
+
+	//FZ77 compress algrithm
+	struct DeflateBlock {
+		uint32_t length;
+		uint32_t distance;
+	};
+
+	std::vector<DeflateBlock> deflate_FZ77(const uint8_t* data, size_t length) {
+		std::vector<DeflateBlock> blocks;
+		std::map<std::string, int> window;
+		int window_start = 0;
+		int search_start = 0;
+		for (int i = 0; i < length; i++) {
+			int search_end = std::min(i + 32767, (int)length - 1);
+			int best_length = 0;
+			int best_distance = 0;
+			for (int j = search_start; j <= search_end; j++) {
+				int current_length = 0;
+				while (i + current_length < length &&
+					data[j + current_length] == data[i + current_length]) {
+					current_length++;
+					if (j + current_length > search_end) {
+						break;
+					}
+				}
+				if (current_length > best_length) {
+					best_length = current_length;
+					best_distance = i - j;
+				}
+			}
+
+			DeflateBlock block;
+			block.distance = best_distance;
+			block.length = best_length;
+			blocks.push_back(block);
+
+			std::string window_string(reinterpret_cast<const char*>(data + i),
+				best_length);
+			window[window_string] = i;
+			i += best_length - 1;
+			if (window.size() > 32768) {
+				window.erase(window.begin());
+				window_start++;
+			}
+			search_start = std::max(search_start, window_start);
+		}
+		return blocks;
+	}
+
+
+	//Huffman Coding
+	struct Node {
+		int value;
+		int frequency;
+		Node* left;
+		Node* right;
+
+		Node(int value, int frequency) : value(value), frequency(frequency), left(nullptr), right(nullptr) {}
+
+		bool operator<(const Node& other) const { return frequency > other.frequency; }
+	};
+
+	struct Leaf : public Node {
+		Leaf(int value, int frequency) : Node(value, frequency) {}
+	};
+
+	struct InternalNode : public Node {
+		InternalNode(Node* left, Node* right) : Node(0, left->frequency + right->frequency) {
+			this->left = left;
+			this->right = right;
+		}
+	};
+
+	std::map<int, std::vector<bool>> assignCodes(Node* node, bool clear) {
+		static std::map<int, std::vector<bool>> codes;
+		static std::vector<bool> code;
+
+		if (clear) {
+			codes.clear();
+			code.clear();
+		}
+
+		if (node->left == nullptr && node->right == nullptr) {
+			codes[node->value] = code;
+		}
+		else {
+			code.push_back(false);
+			assignCodes(node->left, false);
+			code.back() = true;
+			assignCodes(node->right, false);
+			code.pop_back();
+		}
+
+		return codes;
+	};
+
+	std::map<int, std::vector<bool>> huffmanCoding(const std::map<int, int>& frequency) {
+		std::priority_queue<Node*> q;
+		for (const auto& p : frequency) {
+			q.push(new Leaf(p.first, p.second));
+		}
+		while (q.size() > 1) {
+			Node* left = q.top();
+			q.pop();
+			Node* right = q.top();
+			q.pop();
+			q.push(new InternalNode(left, right));
+		}
+		
+		return assignCodes(q.top(), true);
 	}
 };
