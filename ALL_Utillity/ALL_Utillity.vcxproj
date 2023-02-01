@@ -152,7 +152,6 @@
     <Text Include="Interpolation.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="exprtk.hpp" />
     <ClInclude Include="Utill_ConditionDefines.h" />
     <ClInclude Include="Utill_FreeMemory.h" />
     <ClInclude Include="Utill_Math_Expression.h" />
