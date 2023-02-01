@@ -154,6 +154,7 @@
   <ItemGroup>
     <ClInclude Include="Utill_ConditionDefines.h" />
     <ClInclude Include="Utill_FreeMemory.h" />
+    <ClInclude Include="Utill_ImageFormating.h" />
     <ClInclude Include="Utill_Math_Expression.h" />
     <ClInclude Include="Utill_Reform.h" />
     <ClInclude Include="Utill_Safe.h" />
@@ -163,10 +164,13 @@
     <ClInclude Include="Utill_StrArr.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Imagetest.cpp" />
     <ClCompile Include="main.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="mathexpr.cpp" />
+    <ClCompile Include="mathexpr.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Utill_Math_Interpolation.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
