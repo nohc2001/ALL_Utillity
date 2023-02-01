@@ -1,0 +1,24 @@
+﻿  mathexpr.cpp
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_StrArr.h(103,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_StrArr.h(104,21): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_Math_Expression.h(194,38): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_Math_Expression.h(513,25): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_Math_Expression.h(529,27): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_Math_Expression.h(554,25): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_Math_Expression.h(814,17): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_Math_Expression.h(824,18): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_Math_Expression.h(835,18): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_Math_Expression.h(894,24): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_Math_Expression.h(935,16): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_Math_Expression.h(954,16): warning C4018: '>=': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_Math_Expression.h(965,16): warning C4018: '>=': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_Reform.h(39,24): warning C4244: '초기화 중': 'double'에서 'size_t'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_Reform.h(39,18): warning C4244: '초기화 중': 'double'에서 'const size_t'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_Math_Interpolation.h(156,39): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_Math_Interpolation.h(156,61): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_Math_Interpolation.h(163,39): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_Math_Interpolation.h(163,61): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\mathexpr.cpp(20,44): warning C4244: '인수': 'int'에서 'float'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+LINK : warning LNK4075: '/INCREMENTAL'이(가) '/OPT:ICF' 사양으로 인해 무시됩니다.
+mathexpr.obj : warning LNK4075: '/EDITANDCONTINUE'이(가) '/OPT:ICF' 사양으로 인해 무시됩니다.
+  ALL_Utillity.vcxproj -> C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\Debug\ALL_Utillity.exe
