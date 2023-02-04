@@ -31,10 +31,10 @@ namespace freemem {
 #endif
 
 #define GetByte(dat, loc) (dat >> loc) % 2
-#define SetByte(dat, loc, is) ((dat >> loc) % 2) ? ((!is) ? dat - (1 << loc)) : ((is) ? (dat + (1 << loc)) : dat)
+#define SetByte(dat, loc, is) if ((dat >> loc) % 2) { if (!is) { dat =  dat - (1 << loc); } } else if (is) { dat = dat + (1 << loc); }
 
 	template<typename T> void Init_VPTR_x86(void* obj) {
-		T go;
+		T go = T();
 		__int32 vp = *(__int32*)&go;
 		*((__int32*)obj) = vp;
 	}
@@ -764,6 +764,81 @@ namespace freemem {
 				for (int i = 0; i < (int)TempFM.size(); ++i) {
 					TempFM[i]->ClearAll();
 				}
+			}
+		}
+	};
+
+	class BitArray {
+	public:
+		FM_Model* FM = nullptr;
+		int bit_arr_size = 0; // saved bit count.
+		int byte_arr_size = 0; // saved byte count.
+		byte8* Arr = nullptr;
+		int up = 0;
+
+		BitArray() :
+			FM(nullptr), bit_arr_size(0), byte_arr_size(0), Arr(nullptr), up(0)
+		{
+
+		}
+
+		BitArray(FM_Model* fm, size_t bitsize) :
+			FM(fm), bit_arr_size(bitsize), byte_arr_size((bitsize/8) + 1), up(0)
+		{
+			Arr = FM->_New(byte_arr_size);
+		}
+
+		virtual ~BitArray() {
+			FM->_Delete(Arr, byte_arr_size);
+		}
+
+		string get_bit_char() {
+			string str;
+			int byteup = (up / 8) + 1;
+			for (int i = 0; i < byteup; ++i) {
+				for (int lo = 0; lo < 8; ++lo) {
+					if (up <= i * 8 + lo) break;
+					int n = GetByte(Arr[i], lo);
+					if (n == 0) {
+						str.push_back('0');
+					}
+					else if (n == 1) {
+						str.push_back('1');
+					}
+				}
+			}
+			return str;
+		}
+
+		void addbit(bool bit) {
+			if (up + 1 <= bit_arr_size) {
+				++up;
+				int i = up / 8;
+				int loc = up % 8;
+				SetByte(Arr[i], loc, bit);
+			}
+		}
+
+		void SetUp(int n) {
+			up = n;
+			if (up <= bit_arr_size) {
+				up = bit_arr_size;
+			}
+		}
+
+		void setbit(int index, bool bit) {
+			if (0 <= index && index < up) {
+				int i = index / 8;
+				int loc = index % 8;
+				SetByte(Arr[i], loc, bit);
+			}
+		}
+
+		bool getbit(int index) {
+			if (0 <= index && index < up) {
+				int i = index / 8;
+				int loc = index % 8;
+				return GetByte(Arr[i], loc);
 			}
 		}
 	};

@@ -152,6 +152,7 @@
     <Text Include="Interpolation.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Utill_SoundFormating.h" />
     <ClInclude Include="Utill_ConditionDefines.h" />
     <ClInclude Include="Utill_FreeMemory.h" />
     <ClInclude Include="Utill_ImageFormating.h" />
@@ -162,11 +163,14 @@
     <ClInclude Include="Utill_SpaceMath.h" />
     <ClInclude Include="Utill_Str.h" />
     <ClInclude Include="Utill_StrArr.h" />
+    <ClInclude Include="Utill_VirtualUnit.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Imagetest.cpp" />
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="Imagetest.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="mathexpr.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

@@ -157,21 +157,8 @@ namespace imgform {
 
 
             // Write IDAT chunk
-            std::vector<reform::DeflateBlock> blocks = reform::deflate_FZ77(((uint8_t*)ImageData.Arr), ImageData.size());
-            std::map<int, int> frequency;
-            for (const auto& block : blocks) {
-                frequency[block.length]++;
-            }
-            std::map<int, std::vector<bool>> lengthCodes = reform::huffmanCoding(frequency);
-            frequency.clear();
-            for (const auto& block : blocks) {
-                frequency[block.distance]++;
-            }
-            std::map<int, std::vector<bool>> distanceCodes = reform::huffmanCoding(frequency);
 
             //여기서 부터 이어서 작성
-
-            
 
             unsigned int IDAT_chunkSiz = 4 + height * (1 + width * 4);
             file.write((char*)&IDAT_chunkSiz, 4); // chunk length

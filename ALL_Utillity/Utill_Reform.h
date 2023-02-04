@@ -24,7 +24,7 @@ namespace reform {
 	typedef std::complex<double> Complex;
 	typedef std::valarray<Complex> CArray;
 
-	constexpr int fmsize = 4096;
+	constexpr int fmsize = 1024 * 1024; // 1MB
 	static freemem::FM_Model0 reformFM;
 
 	inline void reformInit() {
@@ -720,8 +720,110 @@ namespace reform {
 		return datas;
 	}
 
-	void lz77encoder(char* txt, char* outTxt) {
+	Data encoder(freemem::BitArray arama, int aramaUzunluk, freemem::BitArray ileri, int ileriUzunluk) {
+		Data datas;
+		if (aramaUzunluk == 0) {
+			datas.offset = 0;
+			datas.length = 0;
+			if (ileri.getbit(0)) {
+				datas.ch = '1';
+			}
+			else {
+				datas.ch = '0';
+			}
+			
+			return datas;
+		}
 
+		if (ileriUzunluk == 0) {
+			datas.offset = -1;
+			datas.length = -1;
+			datas.ch = ' ';
+			return datas;
+		}
+
+
+		int en_benzerlik = 0;
+		int en_uzaklik = 0;
+
+		int birlesimDiziUzunluk = aramaUzunluk + ileriUzunluk; // birlesim dizisi uzunluk
+		FM_Model0 birlesimDizi_fm = FM_Model0();
+		birlesimDizi_fm.SetHeapData(new byte8[birlesimDiziUzunluk + 1], birlesimDiziUzunluk + 1);
+		freemem::BitArray bit_birlesimDizi = freemem::BitArray((FM_Model*)&birlesimDizi_fm, birlesimDiziUzunluk);
+		bit_birlesimDizi.SetUp(birlesimDiziUzunluk);
+		//char* birlesimDizi = (char*)malloc(birlesimDiziUzunluk); // iki dizinin birlestirilecek dizi
+
+		//***********************************************************
+
+		//iki diziyi birlestirme islemi
+
+		for (int i = 0; i < aramaUzunluk; ++i) {
+			bit_birlesimDizi.setbit(i, arama.getbit(i));
+		}
+
+		for (int i = aramaUzunluk; i < birlesimDiziUzunluk; ++i) {
+			int n = i - aramaUzunluk;
+			bit_birlesimDizi.setbit(i, ileri.getbit(n));
+		}
+
+		//***********************************************************
+
+		//Arama dizisi ve ileri dizisi
+
+		//printf("search : ' ");
+		//int i;
+		//for(i=0; i<aramaUzunluk; i++)
+		//    printf("%c",arama[i]);
+		//printf(" ' ->");
+		//printf("look a head : ");
+		//for(i=0; i<ileriUzunluk; i++)
+		//    printf("%c",ileri[i]);
+
+		//***********************************************************
+
+		int arama_indis = aramaUzunluk;
+		int p;
+		for (p = 0; p < aramaUzunluk; p++) {
+
+			int benzerlik = 0;
+			// Benzerlik kontrol 
+			while (bit_birlesimDizi.getbit(p + benzerlik) == bit_birlesimDizi.getbit(arama_indis + benzerlik)) {
+
+				benzerlik = benzerlik + 1;
+
+				if ((arama_indis + benzerlik) == birlesimDiziUzunluk) {
+					benzerlik = benzerlik - 1;
+					break;
+				}
+				if ((p + benzerlik) >= arama_indis) {
+					break;
+				}
+
+			}
+			// benzerlik ve uzaklik karsilastirma
+			if (benzerlik > en_benzerlik) {
+				en_uzaklik = p;
+				en_benzerlik = benzerlik;
+			}
+
+
+		}           
+		// Elde edilen verilen struck yapisi sayesinde coklu donduruluyor
+
+
+		datas.offset = en_uzaklik;
+		datas.length = en_benzerlik;
+		if (bit_birlesimDizi.getbit(arama_indis + en_benzerlik)) {
+			datas.ch = '1';
+		}
+		else {
+			datas.ch = '0';
+		}
+		
+		return datas;
+	}
+
+	void lz77encoder(char* txt, char* outTxt) {
 		Data sonuclar;
 		int x = 16;
 		int maxArama = 1024;
@@ -747,11 +849,16 @@ namespace reform {
 		// Metini karakter karakter okuma islemi ve diziye atama
 
 		char  karakter;
-		char* metin = (char*)malloc(uzunluk);
+		FM_Model0 metin_fm = FM_Model0();
+		metin_fm.SetHeapData(new byte8[uzunluk+1], uzunluk+1);
+		freemem::BitArray bit_metin = freemem::BitArray((FM_Model*)&metin_fm, uzunluk);
+		bit_metin.SetUp(uzunluk);
+		//char* metin = (char*)malloc(uzunluk);
 		karakter = fgetc(metinBelgesi);
 		int id = 0;
 		while (karakter != EOF) {
-			metin[id] = karakter;
+			//metin[id] = karakter;
+			bit_metin.setbit(id, karakter-'0');
 			karakter = fgetc(metinBelgesi);
 			id++;
 		}
@@ -787,26 +894,34 @@ namespace reform {
 			}
 			//**********************************************************************
 			// Metin dizisinin içinden mevcut pozisyonlara gore arama dizisi ve ileri dizisini dolduruyoruz
-			char* aramaDizisi = (char*)malloc(bA);
+			//char* aramaDizisi = (char*)malloc(bA);
+			FM_Model0 aramaDizisi_fm = FM_Model0();
+			aramaDizisi_fm.SetHeapData(new byte8[bA + 1], bA + 1);
+			freemem::BitArray bit_aramaDizisi = freemem::BitArray((FM_Model*)&aramaDizisi_fm, bA);
+			bit_aramaDizisi.SetUp(bA);
 			int k;
 			for (k = 0; k < bA; k++, aI++) {
-				aramaDizisi[k] = metin[aI];
+				bit_aramaDizisi.setbit(k, bit_metin.getbit(aI));
 			}
 
-			char* ileriDizi = (char*)malloc(bI);
+			//char* ileriDizi = (char*)malloc(bI);
+			FM_Model0 ileriDizi_fm = FM_Model0();
+			ileriDizi_fm.SetHeapData(new byte8[bI + 1], bI + 1);
+			freemem::BitArray bit_ileriDizi = freemem::BitArray((FM_Model*)&ileriDizi_fm, bI);
+			bit_ileriDizi.SetUp(bI);
 			int o;
 			for (o = 0; o < bI; o++, iL++) {
 				if (iL >= uzunluk) {
 					break;
 				}
 				else {
-					ileriDizi[o] = metin[iL];
+					bit_aramaDizisi.setbit(o, bit_metin.getbit(iL));
 				}
 			}
 
 
 			//**********************************************************************
-			sonuclar = encoder(aramaDizisi, bA, ileriDizi, bI); // Lz77 icin arama islemi yapiliyor
+			sonuclar = encoder(bit_aramaDizisi, bA, bit_ileriDizi, bI); // Lz77 icin arama islemi yapiliyor
 
 		   //printf("\n(%d - %d - %c)\n",sonuclar.offset,sonuclar.length,sonuclar.ch);
 
@@ -822,7 +937,6 @@ namespace reform {
 		}
 
 		fclose(yazilandosya);
-
 	}
 
 

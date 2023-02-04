@@ -59,6 +59,12 @@
     <ClInclude Include="Utill_ImageFormating.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Utill_SoundFormating.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Utill_VirtualUnit.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">

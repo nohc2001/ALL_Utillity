@@ -424,10 +424,13 @@ namespace shp {
 	// 다각형을 직사각형 틀에 담아 자른다.
 	vector<triangle3v> FreePolygonInRectRange(vector<vec2f> freepolygon, rect4f rt);
 
+	//수직선 위에서 두 영역이 만나는지 여부
 	bool CollidCondition(vec2f rangeA, vec2f rangeB);
 
+	// 두 직육면체가 서로 만나는지 여부
 	bool isCubeContactCube(cube6f c1, cube6f c2);
 
+	//x가 위치, y가 속도로, 두 물체가 서로를 향해 가고있을 때, 어디에서 만나는 지.
 	float GetContactLocation(shp::vec2f pv1, shp::vec2f pv2);
 };
 
