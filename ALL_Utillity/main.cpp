@@ -15,20 +15,20 @@ int main() {
 	UnitArray.NULLState();
 	UnitArray.SetFM((freemem::FM_Model*)&fm);
 	UnitArray.Init(100);
-
-	NOT_Gate* u_not = ((NOT_Gate*)fm._New(sizeof(NOT_Gate)))->Init(); Init_VPTR<NOT_Gate>(u_not);
-	OR_Gate* u_or = ((OR_Gate*)fm._New(sizeof(OR_Gate)))->Init(); Init_VPTR<OR_Gate>(u_or);
-	AND_Gate* u_and = ((AND_Gate*)fm._New(sizeof(AND_Gate)))->Init(); Init_VPTR<AND_Gate>(u_and);
-	XOR_Gate* u_xor = ((XOR_Gate*)fm._New(sizeof(XOR_Gate)))->Init(); Init_VPTR<XOR_Gate>(u_xor);
+	
+	NOT_Gate* u_not = vins_New(fm, NOT_Gate, u_not);
+	OR_Gate* u_or = vins_New(fm, OR_Gate, u_or);
+	AND_Gate* u_and = vins_New(fm, AND_Gate, u_and);
+	XOR_Gate* u_xor = vins_New(fm, XOR_Gate, u_xor);
 
 	UnitArray.push_back((Unit*)u_not);
 	UnitArray.push_back((Unit*)u_or);
 	UnitArray.push_back((Unit*)u_and);
 	UnitArray.push_back((Unit*)u_xor);
 	
-	CircutUnit* u_HalfAdder = (CircutUnit*)fm._New(sizeof(CircutUnit)); Init_VPTR<CircutUnit>(u_HalfAdder);
+	CircutUnit* u_HalfAdder = vins_New(fm, CircutUnit, u_HalfAdder);
 	u_HalfAdder->SetFM((freemem::FM_Model*)&fm);
-	u_HalfAdder->SetInputOutputNum(2, 2, 6); // 10
+	u_HalfAdder->SetInputOutputNum(2, 2, 6); // 10 (2byte)
 	u_HalfAdder->AddUnit((Unit*)u_xor);
 	u_HalfAdder->AddUnit((Unit*)u_and);
 	u_HalfAdder->ConnectSetting();
@@ -38,11 +38,12 @@ int main() {
 	u_HalfAdder->Connect(1, 8);
 	u_HalfAdder->Connect(6, 2);
 	u_HalfAdder->Connect(9, 3);
+	u_HalfAdder->RequireSimul(1);
 	UnitArray.push_back((Unit*)u_HalfAdder);
 
-	CircutUnit* u_FullAdder = (CircutUnit*)fm._New(sizeof(CircutUnit)); Init_VPTR<CircutUnit>(u_FullAdder);
+	CircutUnit* u_FullAdder = vins_New(fm, CircutUnit, u_FullAdder);
 	u_FullAdder->SetFM((freemem::FM_Model*)&fm);
-	u_FullAdder->SetInputOutputNum(3, 2, 22);
+	u_FullAdder->SetInputOutputNum(3, 2, 22); // 27 (4byte)
 	u_FullAdder->AddUnit((Unit*)u_HalfAdder);
 	u_FullAdder->AddUnit((Unit*)u_HalfAdder);
 	u_FullAdder->AddUnit((Unit*)u_or);
@@ -55,14 +56,41 @@ int main() {
 	u_FullAdder->Connect(18, 25);
 	u_FullAdder->Connect(17, 3);
 	u_FullAdder->Connect(27, 4);
+	u_FullAdder->RequireSimul(2);
 	UnitArray.push_back((Unit*)u_FullAdder);
+
+	CircutUnit* u_8bitAdder = vins_New(fm, CircutUnit, u_8bitAdder);
+	u_8bitAdder->SetFM((freemem::FM_Model*)&fm);
+	u_8bitAdder->SetInputOutputNum(17, 9, 216); // 242 (31byte)
+	u_8bitAdder->AddUnit((Unit*)u_FullAdder); //in : 26+27i 27+27i 28+27i > out : 29+27i 30+27i
+	u_8bitAdder->AddUnit((Unit*)u_FullAdder); 
+	u_8bitAdder->AddUnit((Unit*)u_FullAdder);
+	u_8bitAdder->AddUnit((Unit*)u_FullAdder);
+	u_8bitAdder->AddUnit((Unit*)u_FullAdder);
+	u_8bitAdder->AddUnit((Unit*)u_FullAdder);
+	u_8bitAdder->AddUnit((Unit*)u_FullAdder);
+	u_8bitAdder->AddUnit((Unit*)u_FullAdder);
+	u_8bitAdder->ConnectSetting();
+	for (int i = 0; i < 8; ++i) {
+		u_8bitAdder->Connect(i, 26 + 27 * i);
+		u_8bitAdder->Connect(i+8, 27 + 27 * i);
+	}
+	u_8bitAdder->Connect(16, 28 + 27);
+	for (int i = 0; i < 7; ++i) {
+		u_8bitAdder->Connect(30 + 27 * i, 28 + 27 * i);
+	}
+	u_8bitAdder->Connect(30 + 27 * 7, 25);
+	for (int i = 0; i < 8; ++i) {
+		u_8bitAdder->Connect(29 + 27 * i, 17 + i);
+	}
+	u_8bitAdder->RequireSimul(2);
+	UnitArray.push_back((Unit*)u_8bitAdder);
 
 	UnitInstance instance = UnitInstance();
 	instance.SetFM((freemem::FM_Model*)&fm);
-	instance.Init((Unit*)u_FullAdder);
-	instance.Input(0, true); instance.Input(1, true); instance.Input(2, false);
-	cout << GetStrBitRange(instance.Execute()) << endl;
-	cout << GetStrBitRange(instance.Execute()) << endl;
+	instance.Init((Unit*)u_8bitAdder);
+	byte8 data[2] = { 0B00000001, 0B00000011 };
+	instance.Input(0, &data[0], 8); instance.Input(8, &data[1], 8); instance.Input(16, false);
 	cout << GetStrBitRange(instance.Execute()) << endl;
 	//UnitArray.push_back()
 	return 0;

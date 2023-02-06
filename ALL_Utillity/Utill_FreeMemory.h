@@ -30,8 +30,10 @@ namespace freemem {
 	#define Init_VPTR freemem::Init_VPTR_x86
 #endif
 
-#define GetByte(dat, loc) (dat >> loc) % 2
-#define SetByte(dat, loc, is) if ((dat >> loc) % 2) { if (!is) { dat =  dat - (1 << loc); } } else if (is) { dat = dat + (1 << loc); }
+#define _GetByte(dat, loc) (dat >> loc) % 2
+#define _SetByte(dat, loc, is) dat = freemem::SetByte8(dat, loc, is);
+#define vins_New(FM, T, VariablePtr) ((T*)FM._New(sizeof(T)))->Init(); Init_VPTR<T>(VariablePtr);
+#define ins_New(FM, T, VariablePtr) ((T*)FM._New(sizeof(T)))->Init();
 
 	template<typename T> void Init_VPTR_x86(void* obj) {
 		T go = T();
@@ -182,7 +184,7 @@ namespace freemem {
 		bool isValid(unsigned int address) {
 			int bigloc = address / 8;
 			int smallLoc = address % 8;
-			if (GetByte(DataPtr[realDataSiz + bigloc], smallLoc)) {
+			if (_GetByte(DataPtr[realDataSiz + bigloc], smallLoc)) {
 				return false;
 			}
 			else return true;
@@ -798,7 +800,7 @@ namespace freemem {
 			for (int i = 0; i < byteup; ++i) {
 				for (int lo = 0; lo < 8; ++lo) {
 					if (up <= i * 8 + lo) break;
-					int n = GetByte(Arr[i], lo);
+					int n = _GetByte(Arr[i], lo);
 					if (n == 0) {
 						str.push_back('0');
 					}
@@ -815,7 +817,7 @@ namespace freemem {
 				++up;
 				int i = up / 8;
 				int loc = up % 8;
-				SetByte(Arr[i], loc, bit);
+				_SetByte(Arr[i], loc, bit);
 			}
 		}
 
@@ -830,7 +832,7 @@ namespace freemem {
 			if (0 <= index && index < up) {
 				int i = index / 8;
 				int loc = index % 8;
-				SetByte(Arr[i], loc, bit);
+				Arr[i] = SetByte8(Arr[i], loc, bit);
 			}
 		}
 
@@ -838,7 +840,7 @@ namespace freemem {
 			if (0 <= index && index < up) {
 				int i = index / 8;
 				int loc = index % 8;
-				return GetByte(Arr[i], loc);
+				return _GetByte(Arr[i], loc);
 			}
 		}
 	};

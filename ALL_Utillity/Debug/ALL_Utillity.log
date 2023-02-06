@@ -1,20 +1,22 @@
 ﻿  main.cpp
 C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_VirtualUnit.h(13,3): warning C4091: 'typedef ': 변수를 선언하지 않으면 'virtu_unit::BitRange' 왼쪽은 무시됩니다.
-C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_VirtualUnit.h(190,4): warning C4804: '%': 연산에 'bool' 형식을 사용하는 것은 안전하지 않습니다.
-C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_VirtualUnit.h(261,22): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_VirtualUnit.h(301,8): warning C4018: '<=': signed 또는 unsigned가 일치하지 않습니다.
-C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_VirtualUnit.h(301,49): warning C4018: '<=': signed 또는 unsigned가 일치하지 않습니다.
-C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_VirtualUnit.h(314,23): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_VirtualUnit.h(323,22): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_VirtualUnit.h(344,22): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_VirtualUnit.h(346,23): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_FreeMemory.h(565,22): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_FreeMemory.h(564): message : 클래스 템플릿 멤버 함수 'void freemem::InfiniteArray<int>::SetVPTR(void)'을(를) 컴파일하는 중입니다.
-C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_VirtualUnit.h(293): message : 컴파일되는 함수 템플릿 인스턴스화 'void freemem::InfiniteArray<int>::SetVPTR(void)'에 대한 참조를 확인하세요.
-C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_VirtualUnit.h(290): message : 컴파일되는 클래스 템플릿 인스턴스화 'freemem::InfiniteArray<int>'에 대한 참조를 확인하세요.
-C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_FreeMemory.h(512,23): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_FreeMemory.h(507): message : 클래스 템플릿 멤버 함수 'void freemem::InfiniteArray<int>::Init(size_t)'을(를) 컴파일하는 중입니다.
-C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_VirtualUnit.h(294): message : 컴파일되는 함수 템플릿 인스턴스화 'void freemem::InfiniteArray<int>::Init(size_t)'에 대한 참조를 확인하세요.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_VirtualUnit.h(43,3): warning C4091: 'typedef ': 변수를 선언하지 않으면 'virtu_unit::UnitTypes' 왼쪽은 무시됩니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_VirtualUnit.h(293,22): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_VirtualUnit.h(333,8): warning C4018: '<=': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_VirtualUnit.h(333,49): warning C4018: '<=': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_VirtualUnit.h(345,24): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_VirtualUnit.h(352,23): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_VirtualUnit.h(377,25): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_VirtualUnit.h(391,23): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_VirtualUnit.h(393,24): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_VirtualUnit.h(423,22): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_FreeMemory.h(567,22): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_FreeMemory.h(566): message : 클래스 템플릿 멤버 함수 'void freemem::InfiniteArray<int>::SetVPTR(void)'을(를) 컴파일하는 중입니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_VirtualUnit.h(325): message : 컴파일되는 함수 템플릿 인스턴스화 'void freemem::InfiniteArray<int>::SetVPTR(void)'에 대한 참조를 확인하세요.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_VirtualUnit.h(322): message : 컴파일되는 클래스 템플릿 인스턴스화 'freemem::InfiniteArray<int>'에 대한 참조를 확인하세요.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_FreeMemory.h(514,23): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_FreeMemory.h(509): message : 클래스 템플릿 멤버 함수 'void freemem::InfiniteArray<int>::Init(size_t)'을(를) 컴파일하는 중입니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_VirtualUnit.h(326): message : 컴파일되는 함수 템플릿 인스턴스화 'void freemem::InfiniteArray<int>::Init(size_t)'에 대한 참조를 확인하세요.
 LINK : warning LNK4075: '/INCREMENTAL'이(가) '/OPT:ICF' 사양으로 인해 무시됩니다.
 main.obj : warning LNK4075: '/EDITANDCONTINUE'이(가) '/OPT:ICF' 사양으로 인해 무시됩니다.
   ALL_Utillity.vcxproj -> C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\Debug\ALL_Utillity.exe

@@ -17,7 +17,7 @@ namespace virtu_unit {
 		if (br.start > br.end) return str;
 		int i = br.start;
 		while (1) {
-			if (GetByte(br.arr[index(i)], loc(i))) {
+			if (_GetByte(br.arr[index(i)], loc(i))) {
 				str.push_back('1');
 			}
 			else {
@@ -34,11 +34,20 @@ namespace virtu_unit {
 		return str;
 	}
 
+	typedef enum class UnitTypes{
+		NOT = 1,
+		OR = 2,
+		AND = 3,
+		XOR = 4,
+		CIRCUTUNIT = 5
+	};
+
 	class Unit {
 	public:
 		int inputNum = 0;
 		int outputNum = 0;
 		int materialNum = 0;
+		UnitTypes t;
 
 		Unit() :
 			inputNum(0), outputNum(0), materialNum(0)
@@ -54,6 +63,8 @@ namespace virtu_unit {
 		virtual int GetMaxWire() {
 			return inputNum + outputNum;
 		}
+
+		
 	};
 
 	typedef freemem::InfiniteArray<int> BitConnect;
@@ -111,6 +122,7 @@ namespace virtu_unit {
 			inputNum = 1;
 			outputNum = 1;
 			materialNum = 0;
+			t = UnitTypes::NOT;
 		}
 
 		virtual ~NOT_Gate() {
@@ -121,6 +133,7 @@ namespace virtu_unit {
 			inputNum = 1;
 			outputNum = 1;
 			materialNum = 0;
+			t = UnitTypes::NOT;
 			return this;
 		}
 
@@ -159,7 +172,10 @@ namespace virtu_unit {
 		}
 
 		virtual void GetResult(BitRange input, BitRange output, BitRange material) {
-			SetByte(output.arr[index(output.start)], loc(output.start), (GetByte(input.arr[index(input.start)], loc(input.start)) || GetByte(input.arr[index(input.start + 1)], loc(input.start + 1))))
+			bool b0 = _GetByte(input.arr[index(input.start)], loc(input.start));
+			bool b1 = _GetByte(input.arr[index(input.start + 1)], loc(input.start + 1));
+			_SetByte(output.arr[index(output.start)], loc(output.start), b0 || b1);
+			//SetByte(output.arr[index(output.start)], loc(output.start), (GetByte(input.arr[index(input.start)], loc(input.start)) || GetByte(input.arr[index(input.start + 1)], loc(input.start + 1))))
 		}
 
 		virtual int GetMaxWire() {
@@ -173,6 +189,7 @@ namespace virtu_unit {
 			inputNum = 2;
 			outputNum = 1;
 			materialNum = 0;
+			t = UnitTypes::AND;
 		}
 
 		virtual ~AND_Gate() {
@@ -183,11 +200,14 @@ namespace virtu_unit {
 			inputNum = 2;
 			outputNum = 1;
 			materialNum = 0;
+			t = UnitTypes::AND;
 			return this;
 		}
 
 		virtual void GetResult(BitRange input, BitRange output, BitRange material) {
-			SetByte(output.arr[index(output.start)], loc(output.start), GetByte(input.arr[index(input.start)], loc(input.start)) && GetByte(input.arr[index(input.start + 1)], loc(input.start + 1)));
+			bool b0 = _GetByte(input.arr[index(input.start)], loc(input.start));
+			bool b1 = _GetByte(input.arr[index(input.start + 1)], loc(input.start + 1));
+			_SetByte(output.arr[index(output.start)], loc(output.start), b0 && b1);
 		}
 
 		virtual int GetMaxWire() {
@@ -201,6 +221,7 @@ namespace virtu_unit {
 			inputNum = 2;
 			outputNum = 1;
 			materialNum = 0;
+			t = UnitTypes::XOR;
 		}
 
 		virtual ~XOR_Gate() {
@@ -211,11 +232,15 @@ namespace virtu_unit {
 			inputNum = 2;
 			outputNum = 1;
 			materialNum = 0;
+			t = UnitTypes::XOR;
 			return this;
 		}
 
 		virtual void GetResult(BitRange input, BitRange output, BitRange material) {
-			SetByte(output.arr[index(output.start)], loc(output.start), (GetByte(input.arr[index(input.start)], loc(input.start)) != GetByte(input.arr[index(input.start + 1)], loc(input.start + 1))))
+			bool b0 = _GetByte(input.arr[index(input.start)], loc(input.start));
+			bool b1 = _GetByte(input.arr[index(input.start + 1)], loc(input.start + 1));
+			_SetByte(output.arr[index(output.start)], loc(output.start), b0 != b1);
+			//SetByte(output.arr[index(output.start)], loc(output.start), (GetByte(input.arr[index(input.start)], loc(input.start)) != GetByte(input.arr[index(input.start + 1)], loc(input.start + 1))))
 		}
 
 		virtual int GetMaxWire() {
@@ -229,20 +254,27 @@ namespace virtu_unit {
 			inputNum = 0;
 			outputNum = 0;
 			materialNum = 0;
+			t = UnitTypes::CIRCUTUNIT;
 		}
 
 		virtual ~CircutUnit() {
-
 		}
 
 		freemem::FM_Model* FM = nullptr;
 		freemem::InfiniteArray<Unit*> units; // 재료가 되는 유닛들
 		freemem::InfiniteArray<BitConnect> connecting; // 각 wire들이 어떤 유닛들의 wire들로 input 되는지
+		int require_simulation_time = 1;
 
-		void Init() {
+		CircutUnit* Init() {
 			inputNum = 0;
 			outputNum = 0;
 			materialNum = 0;
+			t = UnitTypes::CIRCUTUNIT;
+			return this;
+		}
+
+		void RequireSimul(int n) {
+			require_simulation_time = n;
 		}
 
 		void SetFM(freemem::FM_Model* fm) {
@@ -304,53 +336,125 @@ namespace virtu_unit {
 		}
 
 		virtual void GetResult(BitRange input, BitRange output, BitRange material) {
-			int ion = inputNum + outputNum;
+			for (int simul = 0; simul < require_simulation_time; ++simul) {
+				int ion = inputNum + outputNum + input.start;
 
-			string dbg_input = GetStrBitRange(input);
-			string dbg_output = GetStrBitRange(output);
-			string dbg_material = GetStrBitRange(material);
-			for (int i = 0; i < inputNum; ++i) {
-				bool wv = GetByte(input.arr[index(i)], loc(i));
-				for (int k = 0; k < connecting[i].size(); ++k) {
-					int wadd = connecting[i][k];
-					SetByte(input.arr[index(wadd)], loc(wadd), wv);
+				string dbg = GetStringData(input.arr, input.start);
+				for (int i = 0; i < inputNum; ++i) {
+					bool wv = _GetByte(input.arr[index(i + input.start)], loc(i + input.start));
+					for (int k = 0; k < connecting[i].size(); ++k) {
+						int wadd = connecting[i][k] + input.start;
+						input.arr[index(wadd)] = freemem::SetByte8(input.arr[index(wadd)], loc(wadd), wv);
+					}
 				}
-			}
-			dbg_input = GetStrBitRange(input);
-			dbg_output = GetStrBitRange(output);
-			dbg_material = GetStrBitRange(material);
+				dbg = GetStringData(input.arr, input.start);
 
+				for (int i = 0; i < units.size(); ++i) {
+					Unit* u = units[i];
+					BitRange in, out, mater;
+					in.arr = &input.arr[index(ion)];
+					in.start = ion % 8;
+					in.end = ion % 8 + u->inputNum - 1;
+					out.arr = &input.arr[index(ion + u->inputNum)];
+					out.start = (ion + u->inputNum) % 8;
+					out.end = (ion + u->inputNum) % 8 + u->outputNum - 1;
+					mater.arr = &input.arr[index(ion + u->inputNum + u->outputNum)];
+					mater.start = (ion + u->inputNum + u->outputNum) % 8;
+					mater.end = (ion + u->inputNum + u->outputNum) % 8 + u->materialNum - 1;
+
+					if (u->t == UnitTypes::CIRCUTUNIT) {
+						dbg = ((CircutUnit*)u)->GetStringData(in.arr, in.start);
+					}
+
+					u->GetResult(in, out, mater);
+
+					ion = ion + u->inputNum + u->outputNum;
+					ion += u->materialNum;
+
+					int j = (int)((int)(out.arr - input.arr) * 8 + out.start - input.start);
+					for (int j1 = 0; j1 < out.end - out.start+1; ++j1) {
+						bool wv = _GetByte(input.arr[index(j + input.start)], loc(j + input.start));
+						for (int k = 0; k < connecting[j].size(); ++k) {
+							int wadd = connecting[j][k] + input.start;
+							_SetByte(input.arr[index(wadd)], loc(wadd), wv);
+						}
+						j += 1;
+					}
+
+					if (u->t == UnitTypes::CIRCUTUNIT) {
+						dbg = ((CircutUnit*)u)->GetStringData(in.arr, in.start);
+					}
+				}
+
+				dbg = GetStringData(input.arr, input.start);
+
+				for (int i = 0; i < connecting.size(); ++i) {
+					bool wv = _GetByte(input.arr[index(i + input.start)], loc(i + input.start));
+					for (int k = 0; k < connecting[i].size(); ++k) {
+						int wadd = connecting[i][k] + input.start;
+						_SetByte(input.arr[index(wadd)], loc(wadd), wv);
+					}
+				}
+
+				dbg = GetStringData(input.arr, input.start);
+			}
+		}
+
+		string GetStringData(byte8* start, int loc) {
+			string str;
+			str.append("[i");
+			int ion = loc;
+			BitRange in, out, mater;
+			in.arr = &start[index(ion)];
+			in.start = ion % 8;
+			in.end = ion % 8 + inputNum - 1;
+			out.arr = &start[index(ion + inputNum)];
+			out.start = (ion + inputNum) % 8;
+			out.end = (ion + inputNum) % 8 + outputNum - 1;
+			mater.arr = &start[index(ion + inputNum + outputNum)];
+			mater.start = (ion + inputNum + outputNum) % 8;
+			mater.end = (ion + inputNum + outputNum) % 8 + materialNum - 1;
+			str.append(GetStrBitRange(in));
+			str.append(" o");
+			str.append(GetStrBitRange(out));
+			str.append(" m[");
+			byte8* st = mater.arr;
+			int stloc = mater.start;
 			for (int i = 0; i < units.size(); ++i) {
-				Unit* u = units[i];
-				BitRange in, out, mater;
-				in.arr = &input.arr[index(ion)];
-				in.start = ion % 8;
-				in.end = ion % 8 + u->inputNum - 1;
-				out.arr = &input.arr[index(ion + u->inputNum)];
-				out.start = (ion + u->inputNum) % 8;
-				out.end = (ion + u->inputNum) % 8 + u->outputNum - 1;
-				mater.arr = &input.arr[index(ion + u->inputNum + u->outputNum)];
-				mater.start = (ion + u->inputNum + u->outputNum) % 8;
-				mater.end = (ion + u->inputNum + u->outputNum) % 8 + u->materialNum - 1;
-				u->GetResult(in, out, mater);
-
-				ion = ion + u->inputNum + u->outputNum;
-				ion += u->materialNum;
-			}
-
-			dbg_input = GetStrBitRange(input);
-			dbg_output = GetStrBitRange(output);
-			dbg_material = GetStrBitRange(material);
-			for (int i = 0; i < connecting.size(); ++i) {
-				bool wv = GetByte(input.arr[index(i)], loc(i));
-				for (int k = 0; k < connecting[i].size(); ++k) {
-					int wadd = connecting[i][k];
-					SetByte(input.arr[index(wadd)], loc(wadd), wv);
+				str.append("u");
+				char n[20] = {};
+				_itoa_s(i, n, 10);
+				str.append(n);
+				str.append(":[");
+				if (units[i]->t == UnitTypes::CIRCUTUNIT) {
+					CircutUnit* cu = (CircutUnit*)units[i];
+					str.append(cu->GetStringData(st, stloc));
+					stloc = stloc + cu->GetMaxWire();
+					st += stloc / 8;
+					stloc = stloc % 8;
 				}
+				else {
+					Unit* u = units[i];
+					str.append("[i");
+					BitRange in, out;
+					int l = stloc;
+					in.arr = &st[index(l)];
+					in.start = l % 8;
+					in.end = l % 8 + u->inputNum - 1;
+					out.arr = &st[index(l + u->inputNum)];
+					out.start = (l + u->inputNum) % 8;
+					out.end = (l + u->inputNum) % 8 + u->outputNum - 1;
+					str.append(GetStrBitRange(in));
+					str.append(" o");
+					str.append(GetStrBitRange(out));
+					str.append("]");
+					stloc = stloc + u->inputNum + u->outputNum;
+					st += stloc / 8;
+					stloc = stloc % 8;
+				}
+				str.append("]] ");
 			}
-			dbg_input = GetStrBitRange(input);
-			dbg_output = GetStrBitRange(output);
-			dbg_material = GetStrBitRange(material);
+			return str;
 		}
 	};
 
@@ -375,6 +479,9 @@ namespace virtu_unit {
 				int m = Original->GetMaxWire();
 				wire = freemem::BitArray(FM, m);
 				wire.SetUp(m);
+				for (int i = 0; i < wire.bit_arr_size; ++i) {
+					wire.Arr[index(i)] = freemem::SetByte8(wire.Arr[index(i)], loc(i), false);
+				}
 			}
 		}
 
@@ -383,7 +490,18 @@ namespace virtu_unit {
 		}
 
 		void Input(int wirenum, bool enable) {
-			SetByte(wire.Arr[index(wirenum)], loc(wirenum), enable);
+			_SetByte(wire.Arr[index(wirenum)], loc(wirenum), enable);
+		}
+
+		void Input(int wirenum, byte8* data, int length) {
+			for (int i = wirenum; i < wirenum + length; ++i) {
+				if (_GetByte(data[index(i-wirenum)], loc(i-wirenum))) {
+					_SetByte(wire.Arr[index(i)], loc(i), true);
+				}
+				else {
+					_SetByte(wire.Arr[index(i)], loc(i), false);
+				}
+			}
 		}
 
 		BitRange Execute() {
@@ -392,12 +510,12 @@ namespace virtu_unit {
 			in.arr = &wire.Arr[0];
 			in.start = 0;
 			in.end = Original->inputNum - 1;
-			out.arr = &wire.Arr[index(in.end + 1)];
-			out.start = in.end + 1;
-			out.end = in.end + Original->outputNum;
-			material.arr = &wire.Arr[index(out.end + 1)];
-			material.start = out.end + 1;
-			material.end = out.end + Original->materialNum;
+			out.arr = &wire.Arr[index(Original->inputNum)];
+			out.start = loc(Original->inputNum);
+			out.end = loc(Original->inputNum) + Original->outputNum - 1;
+			material.arr = &wire.Arr[index(Original->inputNum + Original->outputNum)];
+			material.start = loc(out.end + 1);
+			material.end = loc(out.end + 1) + Original->materialNum - 1;
 
 			Original->GetResult(in, out, material);
 			return out;
