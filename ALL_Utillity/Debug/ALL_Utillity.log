@@ -6,10 +6,10 @@ C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utilli
 C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_VirtualUnit.h(333,49): warning C4018: '<=': signed 또는 unsigned가 일치하지 않습니다.
 C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_VirtualUnit.h(345,24): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
 C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_VirtualUnit.h(352,23): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_VirtualUnit.h(377,25): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_VirtualUnit.h(391,23): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_VirtualUnit.h(393,24): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_VirtualUnit.h(423,22): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_VirtualUnit.h(378,25): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_VirtualUnit.h(393,23): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_VirtualUnit.h(395,24): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_VirtualUnit.h(425,22): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
 C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_FreeMemory.h(567,22): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
 C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_FreeMemory.h(566): message : 클래스 템플릿 멤버 함수 'void freemem::InfiniteArray<int>::SetVPTR(void)'을(를) 컴파일하는 중입니다.
 C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Utill_VirtualUnit.h(325): message : 컴파일되는 함수 템플릿 인스턴스화 'void freemem::InfiniteArray<int>::SetVPTR(void)'에 대한 참조를 확인하세요.

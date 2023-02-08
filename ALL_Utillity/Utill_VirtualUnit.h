@@ -368,22 +368,24 @@ namespace virtu_unit {
 
 					u->GetResult(in, out, mater);
 
-					ion = ion + u->inputNum + u->outputNum;
-					ion += u->materialNum;
-
-					int j = (int)((int)(out.arr - input.arr) * 8 + out.start - input.start);
-					for (int j1 = 0; j1 < out.end - out.start+1; ++j1) {
-						bool wv = _GetByte(input.arr[index(j + input.start)], loc(j + input.start));
-						for (int k = 0; k < connecting[j].size(); ++k) {
-							int wadd = connecting[j][k] + input.start;
-							_SetByte(input.arr[index(wadd)], loc(wadd), wv);
-						}
-						j += 1;
-					}
-
 					if (u->t == UnitTypes::CIRCUTUNIT) {
 						dbg = ((CircutUnit*)u)->GetStringData(in.arr, in.start);
 					}
+
+					int j = ion + u->inputNum;
+					for (int j1 = 0; j1 < u->outputNum; ++j1) {
+						bool wv = _GetByte(input.arr[index(j)], loc(j));
+						for (int k = 0; k < connecting[j - input.start].size(); ++k) {
+							int wadd = connecting[j - input.start][k] + input.start;
+							input.arr[index(wadd)] = freemem::SetByte8(input.arr[index(wadd)], loc(wadd), wv);
+						}
+						j += 1;
+					}
+					
+					dbg = GetStringData(input.arr, input.start);
+
+					ion = ion + u->inputNum + u->outputNum;
+					ion += u->materialNum;
 				}
 
 				dbg = GetStringData(input.arr, input.start);
@@ -392,7 +394,7 @@ namespace virtu_unit {
 					bool wv = _GetByte(input.arr[index(i + input.start)], loc(i + input.start));
 					for (int k = 0; k < connecting[i].size(); ++k) {
 						int wadd = connecting[i][k] + input.start;
-						_SetByte(input.arr[index(wadd)], loc(wadd), wv);
+						input.arr[index(wadd)] = freemem::SetByte8(input.arr[index(wadd)], loc(wadd), wv);
 					}
 				}
 
@@ -455,6 +457,24 @@ namespace virtu_unit {
 				str.append("]] ");
 			}
 			return str;
+		}
+
+		// 이 부품 내부의 유닛의 io 인덱스 번호를 봔환한다.
+		int GetUnitIndex(int unitNum, char io, int i) {
+			int re = inputNum + outputNum;
+
+			for (int i = 0; i < unitNum; ++i) {
+				re += units[i]->GetMaxWire();
+			}
+
+			if (io == 'i') {
+				return re + i;
+			}
+			else if (io == 'o') {
+				return re + units[unitNum]->inputNum + i;
+			}
+
+			return re;
 		}
 	};
 
