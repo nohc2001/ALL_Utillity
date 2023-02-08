@@ -95,21 +95,21 @@ void CircuitInit() {
 	u_16bitAdder->AddUnit((Unit*)u_8bitAdder);
 	u_16bitAdder->ConnectSetting();
 
-	u_16bitAdder->Connect(32, u_16bitAdder->GetUnitIndex(0, 'i', 16));
+	u_16bitAdder->Connect(u_16bitAdder->GetIOIndex('i', 32), u_16bitAdder->GetUnitIndex(0, 'i', 16));
 	u_16bitAdder->Connect(u_16bitAdder->GetUnitIndex(0, 'o', 8), u_16bitAdder->GetUnitIndex(1, 'i', 16));
-	u_16bitAdder->Connect(u_16bitAdder->GetUnitIndex(1, 'o', 8), 49);
+	u_16bitAdder->Connect(u_16bitAdder->GetUnitIndex(1, 'o', 8), u_16bitAdder->GetIOIndex('o', 16));
 	
 	for (int i = 0; i < 8; ++i) {
-		u_16bitAdder->Connect(i, u_16bitAdder->GetUnitIndex(0, 'i', i));
-		u_16bitAdder->Connect(i+16, u_16bitAdder->GetUnitIndex(0, 'i', i+8));
+		u_16bitAdder->Connect(u_16bitAdder->GetIOIndex('i', i), u_16bitAdder->GetUnitIndex(0, 'i', i));
+		u_16bitAdder->Connect(u_16bitAdder->GetIOIndex('i', i+16), u_16bitAdder->GetUnitIndex(0, 'i', i+8));
 	}
 	for (int i = 8; i < 16; ++i) {
-		u_16bitAdder->Connect(i, u_16bitAdder->GetUnitIndex(1, 'i', i-8));
-		u_16bitAdder->Connect(i + 16, u_16bitAdder->GetUnitIndex(1, 'i', i));
+		u_16bitAdder->Connect(u_16bitAdder->GetIOIndex('i', i), u_16bitAdder->GetUnitIndex(1, 'i', i-8));
+		u_16bitAdder->Connect(u_16bitAdder->GetIOIndex('i', i+16), u_16bitAdder->GetUnitIndex(1, 'i', i));
 	}
 	for (int i = 0; i < 8; ++i) {
-		u_16bitAdder->Connect(u_16bitAdder->GetUnitIndex(0, 'o', i), 33 + i);
-		u_16bitAdder->Connect(u_16bitAdder->GetUnitIndex(1, 'o', i), 33 + i + 8);
+		u_16bitAdder->Connect(u_16bitAdder->GetUnitIndex(0, 'o', i), u_16bitAdder->GetIOIndex('o', i));
+		u_16bitAdder->Connect(u_16bitAdder->GetUnitIndex(1, 'o', i), u_16bitAdder->GetIOIndex('o', i+8));
 	}
 
 	u_16bitAdder->RequireSimul(1);

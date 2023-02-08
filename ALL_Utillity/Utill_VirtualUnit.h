@@ -476,6 +476,15 @@ namespace virtu_unit {
 
 			return re;
 		}
+
+		int GetIOIndex(char io, int i) {
+			if (io == 'i') {
+				return i;
+			}
+			else if (io == 'o') {
+				return inputNum + i;
+			}
+		}
 	};
 
 	class UnitInstance {
