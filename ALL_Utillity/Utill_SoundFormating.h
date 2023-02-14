@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include "Utill_FreeMemory.h"
 
 using namespace std;
 
@@ -57,7 +58,6 @@ namespace wavform {
 		DATA Data;
 	} WAVE_HEADER;
 
-
 	typedef struct Wav {
 		const char* filename;
 		int duration;
@@ -68,77 +68,103 @@ namespace wavform {
 		short* realData_L;
 	};
 
-	void makeWave(const char* filename, int duration) {
-		FILE* f_out;
-		if (fopen_s(&f_out, filename, "wb") == 0) {
-			WAVE_HEADER header;
-			memcpy(header.Riff.ChunkID, "RIFF", 4);
-			header.Riff.ChunkSize = duration * SAMPLE_RATE * CHANNEL * BIT_RATE / 8 + 36;
-			memcpy(header.Riff.Format, "WAVE", 4);
-			memcpy(header.Fmt.ChunkID, "fmt ", 4);
-			header.Fmt.ChunkSize = 0x10;
-			header.Fmt.AudioFormat = WAVE_FORMAT_PCM;
-			header.Fmt.NumChannels = CHANNEL;
-			header.Fmt.SampleRate = SAMPLE_RATE;
-			header.Fmt.AvgByteRate = SAMPLE_RATE * CHANNEL * BIT_RATE / 8;
-			header.Fmt.BlockAlign = CHANNEL * BIT_RATE / 8;
-			header.Fmt.BitPerSample = BIT_RATE;
-			memcpy(header.Data.ChunkID, "data", 4);
-			header.Data.ChunkSize = duration * SAMPLE_RATE * CHANNEL * BIT_RATE / 8;
-			fwrite(&header, sizeof(header), 1, f_out);
-			short y[1];
-			double freq = 100;
-			for (int i = 0; i < SAMPLE_RATE * duration * CHANNEL * BIT_RATE / 8; i++) {
-				//y[0] = (short)30000 * sin(2 * 3.141592 * i * freq / SAMPLE_RATE); // 제임스님 코멘트에 따른 수정 
-				double value;
-				value = (double)20000 * Peak2(0.5, 2 * 3.141592 * i * freq / SAMPLE_RATE);
-				//valueLimmitiing
-				if (value > 30000) value = 30000;
-				if (value < -30000) value = -30000;
-				y[0] = (short)value;
-				fwrite(&y[0], sizeof(short), 1, f_out);
-			}
-			fclose(f_out);
+	class WaveController {
+	public:
+		freemem::FM_Model0 wave_memory;
+		int wave_mem_size = 52920000; // 5 minute
+
+		static constexpr int sample_rate = 44100; // 88200 = 86KB
+		static constexpr int channel_num = 2;
+		static constexpr int sample_size = 2; // short
+		static constexpr int max_pressure = 32767;
+
+		float max_sec = 0;
+
+		WaveController() {
+			wave_memory.SetHeapData(new byte8[wave_mem_size], wave_mem_size);
 		}
-	}
 
-	Wav LoadWave(const char* filename) {
-		FILE* f_out;
-		Wav wav;
-		if (fopen_s(&f_out, filename, "rb") == 0) {
-			WAVE_HEADER header;
-			fread(&header, sizeof(header), 1, f_out);
-			wav.header = header;
-			wav.bit_rate = wav.header.Fmt.BitPerSample;
-			wav.sample_rate = wav.header.Fmt.SampleRate;
-			wav.duration = (wav.header.Data.ChunkSize * 8) / (wav.bit_rate * wav.sample_rate * header.Fmt.NumChannels);
-			wav.filename = filename;
+		virtual ~WaveController() {
 
-			if (wav.header.Fmt.NumChannels == 2) {
-				wav.realData_R = new short[wav.header.Data.ChunkSize / 2];
-				wav.realData_L = new short[wav.header.Data.ChunkSize / 2];
-				for (int i = 0; i < wav.header.Data.ChunkSize; i++) {
-					int n = i / 2;
-					if (i % 2 == 0) {
-						fread(&wav.realData_R[n], sizeof(short), 1, f_out);
-					}
-					else {
-						fread(&wav.realData_L[n], sizeof(short), 1, f_out);
+		}
 
+		void InitSec(float MaxSec) {
+			max_sec = MaxSec;
+			wave_memory.Fup = (int)(MaxSec * (float)(sample_rate * channel_num * sample_size));
+		}
+
+		float GetValue(int i, int channel) {
+			int re = (short)wave_memory.Data[i * 4 + channel * 2];
+			float f = (float)re / (float)max_pressure;
+			return f;
+		}
+
+		void SetValue(int i, int channel, float value) {
+			int re = (int)(value * (float)max_pressure);
+			short* v = (short*)&wave_memory.Data[i * 4 + channel * 2];
+			*v = (short)re;
+		}
+
+		void MakeWaveFile(const char* filename) {
+			FILE* f_out;
+			if (fopen_s(&f_out, filename, "wb") == 0) {
+				WAVE_HEADER header;
+				memcpy(header.Riff.ChunkID, "RIFF", 4);
+				header.Riff.ChunkSize = (int)(max_sec * (float)(SAMPLE_RATE * CHANNEL * BIT_RATE / 8)) + 36;
+				memcpy(header.Riff.Format, "WAVE", 4);
+				memcpy(header.Fmt.ChunkID, "fmt ", 4);
+				header.Fmt.ChunkSize = 0x10;
+				header.Fmt.AudioFormat = WAVE_FORMAT_PCM;
+				header.Fmt.NumChannels = CHANNEL;
+				header.Fmt.SampleRate = SAMPLE_RATE;
+				header.Fmt.AvgByteRate = SAMPLE_RATE * CHANNEL * BIT_RATE / 8;
+				header.Fmt.BlockAlign = CHANNEL * BIT_RATE / 8;
+				header.Fmt.BitPerSample = BIT_RATE;
+				memcpy(header.Data.ChunkID, "data", 4);
+				header.Data.ChunkSize = (int)(max_sec * (float)(SAMPLE_RATE * CHANNEL * BIT_RATE / 8));
+				fwrite(&header, sizeof(header), 1, f_out);
+				short y[1];
+				double freq = 100;
+				for (int i = 0; i < (int)(max_sec * (float)(SAMPLE_RATE * CHANNEL * BIT_RATE / 8)); i++) {
+					//y[0] = (short)30000 * sin(2 * 3.141592 * i * freq / SAMPLE_RATE); // 제임스님 코멘트에 따른 수정 
+					double value;
+					value = (double)32767 * GetValue(i / 2, i % 2);
+					//valueLimmitiing
+					if (value > 32767) value = 32767;
+					if (value < -32766) value = -32766;
+					y[0] = (short)value;
+					fwrite(&y[0], sizeof(short), 1, f_out);
+				}
+				fclose(f_out);
+			}
+		}
+
+		void LoadWaveFile(const char* filename) {
+			FILE* f_out;
+			Wav wav;
+			if (fopen_s(&f_out, filename, "rb") == 0) {
+				WAVE_HEADER header;
+				fread(&header, sizeof(header), 1, f_out);
+				wav.header = header;
+				wav.bit_rate = wav.header.Fmt.BitPerSample;
+				wav.sample_rate = wav.header.Fmt.SampleRate;
+				wav.duration = (wav.header.Data.ChunkSize * 8) / (wav.bit_rate * wav.sample_rate * header.Fmt.NumChannels);
+				wav.filename = filename;
+
+				if (wav.header.Fmt.NumChannels == 2) {
+					InitSec(wav.duration);
+					for (int i = 0; i < wav.header.Data.ChunkSize; i++) {
+						int n = i / 2;
+						short sh = 0;
+						fread(&sh, sizeof(short), 1, f_out);
+						SetValue(n, i % 2, sh);
 					}
 				}
+				printf("Read\n");
+				fclose(f_out);
 			}
-			else {
-				wav.realData_R = new short[wav.header.Data.ChunkSize];
-				for (int i = 0; i < wav.header.Data.ChunkSize; i++) {
-					fread(&wav.realData_R[i], sizeof(int), 1, f_out);
-				}
-			}
-			printf("Read\n");
-			fclose(f_out);
 		}
-		return wav;
-	}
+	};
 }
 
 
