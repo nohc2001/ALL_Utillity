@@ -26,3 +26,5 @@
  Utill_Str.h : A tool of safe and useful string management.
  
  Utill_StrArr.h : Tools that help programming to calculate results by listing words, such as code interprete, mathematics expression, and mind and behave calculations.
+
+ Utill_BitOper.h : Tools of bit manupulation.
