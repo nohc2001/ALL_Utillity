@@ -36,5 +36,15 @@ p : pass
 #define ln1to0(x) (((x | (x-1))+1) & x) // or (((x & -x)+x)&x)
 
 //extend De Morgan's Law
-
+/*
+~(x & y) == ~x | ~y
+~(x | y) == ~x & ~y
+~(x + 1) == ~x - 1
+~(x - 1) == ~x + 1
+~(-x) == x - 1
+~(x ^ y) == ~x ^ y == x≡y
+~(x≡y) == ~x≡y == x^y
+~(x+y) == ~x-y
+~(x-y) == ~x+y
+*/
 #endif
