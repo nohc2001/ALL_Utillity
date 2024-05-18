@@ -197,8 +197,12 @@ unsigned integer floor average (never occur overflow)
 (x & y) + ((x ^ y) >> 1)
 unsigned integer ceiling average (never occur overflow)
 (x | y) - ((x ^ y) >> 1)
-signed integer 
+signed integer average is same as unsigned stuff but shift is not unsigned shift. it's signed shift operation.
+In C language, just change type "unsigned int" to "int". 
 */
+
+#define floor_average(x, y) (x & y) + ((x ^ y) >> 1)
+#define ceiling_average(x, y) (x | y) - ((x ^ y) >> 1)
 
 //--------------------------------------------------------------
 // 2-5 sign extension
