@@ -207,4 +207,44 @@ In C language, just change type "unsigned int" to "int".
 //--------------------------------------------------------------
 // 2-5 sign extension
 //--------------------------------------------------------------
+
+/*
+sign extension : casting short -> int operation.
+how to operate ?
+        1. just casting
+        ....
+*/
+
+#define sign_extension_int(x) ((x + 0x00000080) & 0x000000FF) - 0x00000080
+
+//--------------------------------------------------------------
+// 2-6 signed right shift
+//--------------------------------------------------------------
+
+/*
+if x type is unsigned int
+(int)x >> n == ((x+0x80000000) >> n) - (0x80000000 >> n)
+->
+t = 0x80000000 >> n; ((x >> n) ^ t) - t
+*/
+
+//--------------------------------------------------------------
+// 2-7 sign function
+//--------------------------------------------------------------
+
+/*
+sign(x) = if(x < 0) {-1} else if(x > 0) {1} else {0}
+*/
+
+#define sign_int(x) = (x >> 31) | ((unsigned int)(-x) >> 31)
+//if signed right shift instruct is not exist, sign(x) = -((unsigned int)x >> 31) | ((unsigned int)-x >> 31)
+
+//--------------------------------------------------------------
+// 2-8 compare function
+//--------------------------------------------------------------
+
+/*
+cmp(x, y) = if(x < y) {-1} else if(x > y) {1} else {0}
+*/
+#define cmp_int(x, y) ((x > y) - (x < y))
 #endif
