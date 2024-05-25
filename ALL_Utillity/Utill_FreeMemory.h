@@ -9,12 +9,25 @@
 using namespace std;
 typedef unsigned char byte8;
 
+typedef unsigned char ui8;
+typedef unsigned short ui16;
+typedef unsigned int ui32;
+typedef unsigned long long ui64;
+typedef unsigned int vui128 __attribute__ ((vector_size (16)));
+typedef unsigned int vui256 __attribute__ ((vector_size (32)));
+typedef char si8;
+typedef short si16;
+typedef int si32;
+typedef long long si64;
+typedef int vsi128 __attribute__ ((vector_size (16)));
+typedef int vsi256 __attribute__ ((vector_size (32)));
+
 namespace freemem
 {
 #define Init_VPTR freemem::Init_VPTR_x64
 #define ptr_size 8
 #define ptr_max 0xFFFFFFFFFFFFFFFF
-#define ptr_type int64_t
+#define ptr_type uint64_t
 
 #define _GetByte(dat, loc) (dat >> loc) % 2
 #define _SetByte(dat, loc, is) dat = freemem::SetByte8(dat, loc, is);
@@ -767,14 +780,15 @@ namespace freemem
 			else
 			{
 				// fup �� �� á����
-				ptr_type start = (ptr_type) DataPtr;
+				
+				ptr_type start = (ptr_type)DataPtr;
 				ptr_type end = (ptr_type) DataPtr;
 				for (int i = 0; i < (int)AAsize; ++i)
 				{
 					start = end;
 					start = start + ((byte8) (*(byte8 *) (start - 1)));
 					end = (ptr_type) AllocArr[i];
-					if (end - start > (int)byteSiz + 1)
+					if ((int)(end - start) > (int)byteSiz + 1)
 					{
 						int index = start + 1 - (ptr_type) DataPtr;
 						if (SizeMemorySize == 1)
@@ -926,130 +940,6 @@ namespace freemem
 		}
 	};
 
-	template < typename T > class InfiniteArray
-	{
-	  public:
-		FM_Model * FM;
-		T *Arr;
-		size_t maxsize = 0;
-		size_t up = 0;
-
-	  InfiniteArray():
-		FM(nullptr), Arr(nullptr), maxsize(0)
-		{
-
-		}
-
-		virtual ~ InfiniteArray()
-		{
-
-		}
-
-		void SetFM(FM_Model * fm)
-		{
-			FM = fm;
-		}
-
-		void NULLState()
-		{
-			FM = nullptr;
-			Arr = nullptr;
-			maxsize = 0;
-			up = 0;
-		}
-
-		void Init(size_t siz)
-		{
-			Init_VPTR < InfiniteArray < T >> (this);
-
-			T *newArr = (T *) FM->_New(sizeof(T) * siz);
-			if (Arr != nullptr)
-			{
-				for (int i = 0; i < maxsize; ++i)
-				{
-					newArr[i] = Arr[i];
-				}
-
-				if (FM->bAlloc((byte8 *) Arr, sizeof(T) * maxsize))
-				{
-					FM->_Delete((byte8 *) Arr, sizeof(T) * maxsize);
-				}
-			}
-
-			Arr = newArr;
-			maxsize = siz;
-		}
-
-		T & at(size_t i)
-		{
-			return Arr[i];
-		}
-
-		T & operator[](size_t i)
-		{
-			return Arr[i];
-		}
-
-		void push_back(const T & value)
-		{
-			if (up < maxsize)
-			{
-				Arr[up] = value;
-				up += 1;
-			}
-			else
-			{
-				Init(maxsize * 2 + 1);
-				Arr[up] = value;
-				up += 1;
-			}
-		}
-
-		void erase(size_t i)
-		{
-			for (int k = i; k < up; ++k)
-			{
-				Arr[k] = Arr[k + 1];
-			}
-			up -= 1;
-		}
-
-		void insert(size_t i, const T & value)
-		{
-			push_back(value);
-			for (int k = maxsize - 1; k > i; k--)
-			{
-				Arr[k] = Arr[k - 1];
-			}
-			Arr[i] = value;
-		}
-
-		size_t size()
-		{
-			return up;
-		}
-
-		void SetVPTR()
-		{
-			for (int i = 0; i < up; ++i)
-			{
-				Init_VPTR < T > (&Arr[i]);
-			}
-		}
-
-		void clear()
-		{
-			if (FM->bAlloc((byte8 *) Arr, sizeof(T) * maxsize))
-			{
-				FM->_Delete((byte8 *) Arr, sizeof(T) * maxsize);
-			}
-			Arr = nullptr;
-			up = 0;
-
-			Init(2);
-		}
-	};
-
 	struct large_alloc
 	{
 		int *ptr;
@@ -1060,10 +950,11 @@ namespace freemem
 	{
 	  public:
 		int thread_id = 0;
-		  vecarr < vecarr < large_alloc > *>large;
-		  vecarr < vecarr < FM_Model0 * >*>tempFM;
+		unsigned int tempPageSize = 4096;
+		vecarr < vecarr < large_alloc > *>large;
+		vecarr < vecarr < FM_Model0 * >*>tempFM;
 
-		TempStack()
+		TempStack() : tempPageSize(4096)
 		{
 		}
 		virtual ~ TempStack()
@@ -1077,9 +968,6 @@ namespace freemem
 			large.Init(10, false);
 			tempFM.NULLState();
 			tempFM.Init(10, false);
-			for (int i = 0; i < 10; ++i) {
-				tempFM[i] = nullptr;
-			}
 			//watch("tempFM init", 0);
 		}
 
@@ -1110,33 +998,37 @@ namespace freemem
 		byte8 *_New(unsigned int size, int fmlayer = -1)
 		{
 			vecarr<FM_Model0*>* tm;
-			if(fmlayer < 0 || fmlayer >= tempFM.up) tm = tempFM.last();
-			else tm = tempFM.at(fmlayer);
-			unsigned int tsize = tm->size();
+			vecarr<large_alloc>* larr;
 
-			for (int i = 0; i < tsize; ++i)
+			if (size <= tempPageSize)
 			{
-				//watch("i", i);
-				int remain = 4096 - tm->at(i)->Fup + 1;
-				if (remain >= size)
+				if(fmlayer < 0 || fmlayer >= tempFM.up) tm = tempFM.last();
+				else tm = tempFM.at(fmlayer);
+				unsigned int tsize = tm->size();
+
+				for (int i = 0; i < tsize; ++i)
 				{
-					return tm->at(i)->_New(size);
+					//watch("i", i);
+					int remain = tempPageSize - tm->at(i)->Fup;
+					if (remain >= size)
+					{
+						return tm->at(i)->_New(size);
+					}
 				}
-			}
 
-			if (size <= 4096)
-			{
 				FM_Model0 *fm0 = new FM_Model0();
-				fm0->SetHeapData(new byte8[4096], 4096);
+				fm0->SetHeapData(new byte8[tempPageSize], tempPageSize);
 				tm->push_back(fm0);
 				return tm->last()->_New(size);
 			}
 			else
 			{
+				if(fmlayer < 0 || fmlayer >= large.up) larr = large.last();
+				else larr = large.at(fmlayer);
 				large_alloc la;
 				la.ptr = (int *)new byte8[size];
 				la.size = size;
-				large.last()->push_back(la);
+				larr->push_back(la);
 				return reinterpret_cast < byte8 * >(la.ptr);
 			}
 		}
@@ -1149,18 +1041,23 @@ namespace freemem
 				fmv->NULLState();
 				fmv->Init(8, false);
 				FM_Model0* fm0 = new FM_Model0();
-				fm0->SetHeapData(new byte8[4096], 4096);
+				fm0->SetHeapData(new byte8[tempPageSize], tempPageSize);
 				fmv->push_back(fm0);
 				tempFM.push_back(fmv);
 				//watch("tempfm push", 0);
-
-				large.push_back(new vecarr < large_alloc > ());
-				large.last()->NULLState();
-				large.last()->Init(8, false);
 			}
 			else
 			{
 				tempFM.up += 1;
+			}
+
+			if(large[large.up] == nullptr || large.up == large.maxsize){
+				large.push_back(new vecarr < large_alloc > ());
+				large.last()->NULLState();
+				large.last()->Init(8, false);
+			}
+			else{
+				large.up += 1;
 			}
 		}
 
@@ -1171,12 +1068,17 @@ namespace freemem
 				tempFM.last()->at(i)->Fup = 0;
 			}
 			tempFM.up -= 1;
+
 			if (large.last()->size() > 0)
 			{
 				for (int i = 0; i < large.last()->size(); ++i)
 				{
-					delete[](byte8 *) large.last()->at(i).ptr;
+					if(large.last()->at(i).ptr != nullptr){
+						delete[](byte8 *) large.last()->at(i).ptr;
+						large.last()->at(i).ptr = nullptr;
+					}
 				}
+				//large.last()->release();
 				large.last()->up = 0;
 			}
 			large.up -= 1;
@@ -1415,10 +1317,12 @@ namespace freemem
 			return tempStack[get_threadid(std::this_thread::get_id())]->_New(byteSiz, fmlayer);
 		}
 
-		byte8 *_New(unsigned int byteSiz, bool isHeapDebug)
+		byte8 *_New(unsigned int byteSiz, bool isHeapDebug, int fmlayer = -1)
 		{
 			if (isHeapDebug == false)
 			{
+				return _tempNew(byteSiz, fmlayer);
+				/*
 				for (int i = 0; i < (int)TempFM.size(); ++i)
 				{
 					byte8 *ptr = TempFM[i]->_New(byteSiz);
@@ -1432,6 +1336,7 @@ namespace freemem
 				TempFM.push_back(tempFM);
 				byte8 *ptr = TempFM[TempFM.size() - 1]->_New(byteSiz);
 				return ptr;
+				*/
 			}
 			else
 			{
@@ -1639,30 +1544,1185 @@ namespace freemem
 			}
 		}
 	};
+}
+
+extern freemem::FM_System0 *fm;
+	
+namespace freemem{
+	template < typename T > class fmvecarr
+	{
+	  public:
+		T *Arr;
+		size_t maxsize = 0;
+		int up = 0;
+		bool islocal = true;
+		bool isdebug = false;
+		int fmlayer = -1;
+
+		fmvecarr()
+		{
+			Arr = nullptr;
+			maxsize = 0;
+			up = 0;
+			islocal = true;
+			fmlayer = -1;
+			isdebug = false;
+		}
+
+		~ fmvecarr()
+		{
+			if (islocal)
+			{
+				if (isdebug)
+				{
+					fm->_Delete(reinterpret_cast < byte8 * >(Arr), sizeof(T) * maxsize);
+				}
+				Arr = nullptr;
+			}
+		}
+
+		void NULLState()
+		{
+			Arr = nullptr;
+			maxsize = 0;
+			up = 0;
+			fmlayer = -1;
+			isdebug = false;
+		}
+
+		void Init(size_t siz, bool local, bool isdebug = false, int pfmlayer = -1)
+		{
+			T *newArr;
+			if (isdebug)
+			{
+				newArr = (T *) fm->_New(sizeof(T) * siz, isdebug);
+			}
+			else
+			{
+				fmlayer = pfmlayer;
+				newArr = (T *) fm->_tempNew(sizeof(T) * siz, fmlayer);
+				if(fmlayer < 0){
+					fmlayer = fm->tempStack[fm->get_threadid(std::this_thread::get_id())]->tempFM.size()-1;
+				}
+			}
+			if (Arr != nullptr)
+			{
+				for (int i = 0; i < maxsize; ++i)
+				{
+					newArr[i] = Arr[i];
+				}
+
+				if (isdebug)
+				{
+					fm->_Delete(reinterpret_cast < byte8 * >(Arr), sizeof(T) * maxsize);
+				}
+				Arr = nullptr;
+			}
+
+			islocal = local;
+			Arr = newArr;
+			maxsize = siz;
+			isdebug = isdebug;
+		}
+
+		T & at(size_t i)
+		{
+			return Arr[i];
+		}
+
+		T & operator[](size_t i) const
+		{
+			return Arr[i];
+		}
+
+		void push_back(T value)
+		{
+			if (up < maxsize)
+			{
+				Arr[up] = value;
+				up += 1;
+			}
+			else
+			{
+				Init(maxsize * 2 + 1, islocal, isdebug, fmlayer);
+				Arr[up] = value;
+				up += 1;
+			}
+		}
+
+		void pop_back()
+		{
+			if (up - 1 >= 0)
+			{
+				up -= 1;
+				// Arr[up] = 0;
+			}
+		}
+
+		void erase(size_t i)
+		{
+			for (int k = i; k < up; ++k)
+			{
+				Arr[k] = Arr[k + 1];
+			}
+			up -= 1;
+		}
+
+		void insert(size_t i, T value)
+		{
+			push_back(value);
+			for (int k = maxsize - 1; k > i; k--)
+			{
+				Arr[k] = Arr[k - 1];
+			}
+			Arr[i] = value;
+		}
+
+		inline size_t size() const
+		{
+			return up;
+		}
+
+		void clear()
+		{
+			if (Arr != nullptr && isdebug)
+				fm->_Delete(reinterpret_cast < byte8 * >(Arr), sizeof(T) * maxsize);
+			Arr = nullptr;
+			up = 0;
+
+			Init(2, islocal, isdebug, fmlayer);
+		}
+
+		T & last() const
+		{
+			if (up > 0)
+			{
+				return Arr[up - 1];
+			}
+			return Arr[0];
+		}
+
+		void release()
+		{
+			if (Arr != nullptr && isdebug)
+				fm->_Delete(reinterpret_cast < byte8 * >(Arr), sizeof(T) * maxsize);
+			Arr = nullptr;
+			up = 0;
+			islocal = false;
+		}
+	};
+
+	template < typename T > struct fmlist_node
+	{
+		T value;
+		  fmlist_node < T > *next = nullptr;
+		  fmlist_node < T > *prev = nullptr;
+	};
+	template < typename T > class fmlist
+	{
+	  public:
+	  	fmlist_node < T > *first;
+		size_t size = 0;
+		short fmlayer = -1;
+		bool isdebug = false;
+		bool islocal = false;
+
+		fmlist(){}
+		~fmlist(){
+			if (!islocal)
+			{
+				while (first->next != nullptr)
+				{
+					erase(first);
+				}
+				if (isdebug)
+				{
+					fm->_Delete(reinterpret_cast < byte8 * >(first), sizeof(fmlist_node < T >));
+				}
+			}
+		}
+
+		void NULLState(){
+			first = nullptr;
+			size = 0;
+			fmlayer = -1;
+			isdebug = false;
+			islocal = false;
+		}
+
+		void Init(bool isDbg, bool isLocal, short pfmlayer){
+			isdebug = isDbg;
+			islocal = isLocal;
+			fmlayer = pfmlayer;
+			if(fmlayer < 0){
+				fmlayer = fm->tempStack[fm->get_threadid(std::this_thread::get_id())]->tempFM.size()-1;
+			}
+		}
+
+		void release()
+		{
+		}
+
+		void push_front(T value)
+		{
+			fmlist_node < T > *sav = first;
+			first = (fmlist_node < T > *)fm->_New(sizeof(fmlist_node < T >), isdebug, (int)fmlayer);
+			first->value = value;
+			first->next = sav;
+			first->prev = nullptr;
+			sav->prev = first;
+			++size;
+		}
+
+		inline fmlist_node < T > *getnext(fmlist_node < T > *node)
+		{
+			return node->next;
+		}
+
+		inline fmlist_node < T > *getprev(fmlist_node < T > *node)
+		{
+			return node->prev;
+		}
+
+		void erase(fmlist_node < T > *node)
+		{
+			if (node == first)
+			{
+				first = node->next;
+			}
+			if (node->prev != nullptr)
+			{
+				node->prev->next = node->next;
+			}
+			if (node->next != nullptr)
+			{
+				node->next->prev = node->prev;
+			}
+			if (isdebug)
+			{
+				fm->_Delete(reinterpret_cast < byte8 * >(node), sizeof(fmlist_node < T >));
+			}
+			--size;
+		}
+	};
+
+	typedef struct VP
+	{
+		char mod = 0;			// mod 0:value 1:ptr
+		int *ptr = nullptr;		// arrgraph ptr or T ptr
+	};
+
+	template < typename T, typename V > struct range
+	{
+		T end;
+		V value;
+	};
+
+	template < typename T, typename V > class ArrGraph
+	{
+	  public:
+		fmvecarr < range < T, V > >* ranges;
+		fmvecarr < VP > graph;
+		short fmlayer = -1;
+		bool islocal = false;
+		bool isdebug = true;
+		T minx = 0;
+		T maxx = 0;
+		T margin = 0;
+
+		ArrGraph()
+		{
+		}
+		~ ArrGraph()
+		{
+			if (islocal)
+			{
+				if (fm->bAlloc(reinterpret_cast < byte8 * >(ranges),
+						   sizeof(vecarr < range < T, V > >)))
+				{
+					ranges->release();
+					fm->_Delete((byte8 *) ranges, sizeof(fmvecarr < range < T, V > >));
+					ranges = nullptr;
+				}
+
+				graph.release();
+				graph.NULLState();
+			}
+		}
+
+		ArrGraph *Init(T min, T max, bool isdbg, int pfmlayer = -1)
+		{
+			minx = min;
+			maxx = max;
+			fmlayer = (short)pfmlayer;
+			isdebug = isdbg;
+			ranges = (fmvecarr < range < T, V > >*)fm->_New(sizeof(fmvecarr < range < T, V > >), isdebug, (int)fmlayer);
+			ranges->NULLState();
+			ranges->Init(2, false, true, fmlayer);
+			if(fmlayer < 0){
+				fmlayer = fm->tempStack[fm->get_threadid(std::this_thread::get_id())]->tempFM.size()-1;
+			}
+			islocal = false;
+			return this;
+		}
+
+		range < T, V > Range(T end, V value)
+		{
+			range < T, V > r;
+			r.end = end;
+			r.value = value;
+			return r;
+		}
+
+		void push_range(range < T, V > r)
+		{
+			if (minx <= r.end && r.end <= maxx)
+			{
+				ranges->push_back(r);
+			}
+		}
+
+		void Compile()
+		{
+			if (ranges->size() > 2)
+			{
+				float d = (float)(maxx - minx);
+				float div = (float)ranges->size();
+				float f = d / div;
+				f = floor(f) + 1;
+				T average_length = (T) (f);
+				margin = average_length;
+				graph.NULLState();
+				graph.Init(ranges->size(), false, true);
+				graph.up = ranges->size();
+				T start = minx;
+				T end = start;
+				for (int i = 0; i < graph.up; ++i)
+				{
+					end = start + average_length;
+					if (end > maxx)
+						end = maxx;
+					T rstart = minx;
+					for (int k = 0; k < ranges->up; ++k)
+					{
+						T rend = ranges->at(k).end;
+						if (rstart <= start && end <= rend)
+						{
+							// num
+							graph[i].mod = 0;
+							graph[i].ptr = reinterpret_cast < int *>(&ranges->at(k).value);
+							break;
+						}
+						else if (start <= rend && rend <= end)
+						{
+							// graph
+							ArrGraph < T, V > *newgraph =
+								(ArrGraph < T, V > *)fm->_New(sizeof(ArrGraph < T, V >), isdebug, fmlayer);
+							newgraph->Init(start, end, isdebug, fmlayer);
+							newgraph->push_range(ranges->at(k));
+							range < T, V > *r = &ranges->at(k + 1);
+							while (r->end <= end)
+							{
+								newgraph->push_range(*r);
+								++k;
+								if (k >= ranges->size())
+								{
+									break;
+								}
+								r = &ranges->at(k + 1);
+							}
+							// input last range
+							range < T, V > lastr;
+							lastr = *r;
+							lastr.end = newgraph->maxx;
+							newgraph->push_range(lastr);
+							newgraph->Compile();
+							graph[i].ptr = reinterpret_cast < int *>(newgraph);
+							graph[i].mod = 1;
+							break;
+						}
+					}
+					start = end;
+				}
+			}
+			else if (ranges->size() == 2)
+			{
+				graph.NULLState();
+				graph.Init(2, false, isdebug, fmlayer);
+				T center = ranges->at(0).end;
+				T start = minx;
+				T end = maxx - 1;
+				if (maxx - center > center - start)
+				{
+					minx = 2 * center + 1 - end;
+				}
+				else
+				{
+					maxx = 2 * center + 1 - start;
+				}
+				margin = (maxx - minx) / ranges->size();
+				VP vp0;
+				vp0.mod = 0;
+				vp0.ptr = reinterpret_cast < int *>(&ranges->at(0).value);
+				graph.push_back(vp0);
+				vp0.ptr = reinterpret_cast < int *>(&ranges->at(1).value);
+				graph.push_back(vp0);
+			}
+		}
+
+		V fx(T x)
+		{
+			static constexpr void *jumpptr[2] = { &&ISVALUE, &&ISGRAPH };
+			ArrGraph < T, V > *ag = this;
+			fmvecarr < VP > *g = &graph;
+			VP vp;
+			float f = 0;
+			int index = 0;
+
+		  GET_START:
+			f = (float)x - (float)ag->minx;
+			f = f / (float)ag->margin;
+			index = (int)f;
+
+			vp = (*g)[index];
+			goto *jumpptr[vp.mod];
+
+		  ISGRAPH:
+			ag = reinterpret_cast < ArrGraph < T, V > *>(vp.ptr);
+			g = &ag->graph;
+			goto GET_START;
+
+		  ISVALUE:
+			return *reinterpret_cast < V * >(vp.ptr);
+		}
+
+		void print_state()
+		{
+			cout << "arrgraph" << endl;
+			cout << "minx : " << minx << endl;
+			cout << "maxx : " << maxx << endl;
+			cout << "capacity : " << graph.size() << endl;
+			cout << "margin : " << margin << endl;
+			for (int i = 0; i < graph.size(); ++i)
+			{
+				if (graph[i].mod == 0)
+				{
+					cout << "index : " << i << "] = value : " << *reinterpret_cast <
+						V * >(graph[i].ptr) << endl;
+				}
+				else
+				{
+					cout << "index : " << i << "] = ptr : " << endl;
+					reinterpret_cast < ArrGraph < T, V > *>(graph[i].ptr)->print_state();
+					cout << endl;
+				}
+			}
+		}
+	};
+
+	//TODO : optimazation (need experiments)
+	//1. percent
+	// : ~([~0] << p)
+	// : 2 << p - 1
+	// : filter[p]
+	//16byte
+	template <typename T>
+	class fmCirculArr
+	{
+	public:
+		T *arr = nullptr; // 8byte
+		ui32 pivot = 0; // 4byte = 32bit - 12bit 20bit -> 100000capacity
+		ui16 maxsiz_pow2 = 4; // array maxsiz = 1 << maxsiz_pow2; // pow(w, maxsiz_pow2);
+		bool mbDbg = true;
+		static constexpr unsigned int filter[33] = {
+			0, 			// 0b 0000 0000 0000 0000 0000 0000 0000 0000
+			1, 			// 0b 0000 0000 0000 0000 0000 0000 0000 0001
+			3, 			// 0b 0000 0000 0000 0000 0000 0000 0000 0011
+			7, 			// 0b 0000 0000 0000 0000 0000 0000 0000 0111
+			15, 		// 0b 0000 0000 0000 0000 0000 0000 0000 1111
+			31, 		// 0b 0000 0000 0000 0000 0000 0000 0001 1111
+			63, 		// 0b 0000 0000 0000 0000 0000 0000 0011 1111
+			127, 		// 0b 0000 0000 0000 0000 0000 0000 0111 1111
+			255, 		// 0b 0000 0000 0000 0000 0000 0000 1111 1111
+			511, 		// 0b 0000 0000 0000 0000 0000 0001 1111 1111
+			1023, 		// 0b 0000 0000 0000 0000 0000 0011 1111 1111
+			2047, 		// 0b 0000 0000 0000 0000 0000 0111 1111 1111
+			4095, 		// 0b 0000 0000 0000 0000 0000 1111 1111 1111
+			8191, 		// 0b 0000 0000 0000 0000 0001 1111 1111 1111
+			16383, 		// 0b 0000 0000 0000 0000 0011 1111 1111 1111
+			32767, 		// 0b 0000 0000 0000 0000 0111 1111 1111 1111
+			65535, 		// 0b 0000 0000 0000 0000 1111 1111 1111 1111
+			131071, 	// 0b 0000 0000 0000 0001 1111 1111 1111 1111
+			262143, 	// 0b 0000 0000 0000 0011 1111 1111 1111 1111
+			524287, 	// 0b 0000 0000 0000 0111 1111 1111 1111 1111
+			1048575, 	// 0b 0000 0000 0000 1111 1111 1111 1111 1111
+			2097151, 	// 0b 0000 0000 0001 1111 1111 1111 1111 1111
+			4194303, 	// 0b 0000 0000 0011 1111 1111 1111 1111 1111
+			8388607, 	// 0b 0000 0000 0111 1111 1111 1111 1111 1111
+			16777215, 	// 0b 0000 0000 1111 1111 1111 1111 1111 1111
+			33554431, 	// 0b 0000 0001 1111 1111 1111 1111 1111 1111
+			67108863, 	// 0b 0000 0011 1111 1111 1111 1111 1111 1111
+			134217727, 	// 0b 0000 0111 1111 1111 1111 1111 1111 1111
+			268435455, 	// 0b 0000 1111 1111 1111 1111 1111 1111 1111
+			536870911, 	// 0b 0001 1111 1111 1111 1111 1111 1111 1111
+			1073741823, // 0b 0011 1111 1111 1111 1111 1111 1111 1111
+			2147483647, // 0b 0111 1111 1111 1111 1111 1111 1111 1111
+			4294967295, // 0b 1111 1111 1111 1111 1111 1111 1111 1111
+		};
+		static constexpr unsigned int uintMax = 4294967295;
+		//freemem::FM_System0 *fm;
+
+		fmCirculArr()
+		{
+		}
+
+		~fmCirculArr()
+		{
+		}
+
+
+		fmCirculArr(const fmCirculArr<T> &ref)
+		{
+			pivot = ref.pivot;
+			maxsiz_pow2 = ref.maxsiz_pow2;
+			arr = ref.arr;
+			mbDbg = ref.mbDbg;
+		}
+
+		void Init(int maxsiz_pow, bool isdbg, int fmlayer = -1)
+		{
+			maxsiz_pow2 = maxsiz_pow;
+			mbDbg = isdbg;
+			arr = (T *)fm->_New(sizeof(T) * (1 << maxsiz_pow2), mbDbg, fmlayer);
+			pivot = 0;
+		}
+
+		void Release()
+		{
+			if(mbDbg){
+				fm->_Delete((byte8 *)arr, sizeof(T) * (1 << maxsiz_pow2));
+			}
+			arr = nullptr;
+		}
+
+		inline void move_pivot(int dist)
+		{
+			pivot = ((1 << maxsiz_pow2) + pivot + dist) & (~(uintMax << (maxsiz_pow2)));
+		}
+
+		inline T &operator[](int index)
+		{
+			int realindex = (index + pivot) & (~(uintMax << (maxsiz_pow2)));
+			return arr[realindex];
+		}
+
+		void dbg()
+		{
+			ui32 max = (1 << maxsiz_pow2);
+			for (int i = 0; i < max; ++i)
+			{
+				cout << this->operator[](i) << " ";
+			}
+			cout << endl;
+		}
+	};
+
+	/*
+	TODO : list
+	1. match name of member var (ok)
+	2. use <<, >>, & instead *, /, % (ok)
+	3. normal casting > reinterpret_cast<> (ok)
+	4. data align (16 or 32byte) -> after finish all task, data align start.
+	5. current Data caching (when [] operator use, if last index +- value is in same fagment, do not excute logic and return add address value.) (ok)
+	*/
+	//32byte
+	template <typename T>
+	class fmDynamicArr
+	{
+	public:
+		fmCirculArr<int *> *ptrArray = nullptr; // 8byte
+		fmCirculArr<T>* lastCArr = nullptr; // 8byte cache
+		ui32 last_outerIndex = 0; // 4byte
+		ui32 array_siz = 0; // up 4byte
+		ui16 fragPercent = 0; //2byte
+		si16 fmlayer = -1; // 2byte
+		ui32 array_capacity = 10; // 4byte
+		ui8 fragment_siz_pow2 = 10; // 1byte
+		ui8 array_depth = 1; // 1byte
+		bool mbDbg = true; // 1byte
+
+		fmDynamicArr()
+		{
+		}
+		~fmDynamicArr()
+		{
+		}
+
+		void Init(int fmgsiz_pow, bool isdbg, int up = 0, int pfmlayer = -1)
+		{
+			if(ptrArray != nullptr){
+				release();
+			}
+			fragment_siz_pow2 = fmgsiz_pow;
+			array_depth = 1;
+			mbDbg = isdbg;
+			fmlayer = pfmlayer;
+			if(ptrArray == nullptr){
+				ptrArray = (fmCirculArr<int *> *)fm->_New(sizeof(fmCirculArr<int *>), mbDbg, (int)fmlayer);
+				ptrArray->Init(fmgsiz_pow, mbDbg);
+				int fmgsiz = 1 << fmgsiz_pow;
+				for(int i=0;i<fmgsiz;++i){
+					ptrArray->operator[](i) = nullptr;
+				}
+			}
+			
+			if(ptrArray->operator[](0) == nullptr){
+				fmCirculArr<T> *arr =
+					(fmCirculArr<T> *)fm->_New(sizeof(fmCirculArr<T>), mbDbg, (int)fmlayer);
+				arr->Init(fragment_siz_pow2, mbDbg);
+				ptrArray->operator[](0) = (int *)arr;
+				lastCArr = arr;
+			}
+
+			for (int i = 1; i < (1 << fragment_siz_pow2); ++i)
+			{
+				ptrArray->operator[](i) = nullptr;
+			}
+
+			array_capacity = 1 << fragment_siz_pow2;
+			array_siz = 0;
+
+			fragPercent = ((1 << (fragment_siz_pow2))-1);
+
+			lastCArr = this->get_bottom_array(0);
+
+			// up -> depth
+			if(up > 0){
+				const unsigned int pushN = 1+(up >> fragment_siz_pow2);
+				const unsigned int delta = (1 << fragment_siz_pow2);
+				for(int i=0;i<pushN;++i){
+					array_siz += delta;
+					T v;
+					push_back(v);
+				}
+
+				array_siz = up;
+			}
+
+			if(fmlayer < 0){
+				fmlayer = fm->tempStack[fm->get_threadid(std::this_thread::get_id())]->tempFM.size() - 1;
+			}
+		}
+
+		int get_max_capacity_inthisArr()
+		{
+			return 1 << (fragment_siz_pow2 * (array_depth + 1));
+		}
+
+/*
+		void set(int index, T value)
+		{
+			//this->operator[index] = value;
+			T nullv = 0;
+			int fragPercent = ((1 << (fragment_siz_pow2+1))-1);
+			if (index >= (1 << array_capacity_pow2))
+			{
+				return;
+			}
+			circularArray<int *> *ptr = ptrArray;
+			for (int i = 0; i < array_depth; ++i)
+			{
+				ptr = reinterpret_cast<circularArray<int *> *>(ptr->operator[]((int)((index >> (fragment_siz_pow2 * (array_depth - i)))) & fragPercent));
+			}
+			circularArray<T> *vptr = reinterpret_cast<circularArray<T> *>(ptr);
+			// T *vptr = ptr;
+			int inindex = (int)(index) & fragPercent;
+			vptr->operator[](inindex) = value;
+		}
+*/
+		
+		void push_back(T value)
+		{
+			if (array_siz + 1 <= array_capacity)
+			{
+				//set(array_siz, value);
+				if(array_siz == 256){
+					cout << "break!" << endl;
+				}
+				this->operator[](array_siz) = value;
+				//(*this)[array_siz] = value;
+				array_siz += 1;
+			}
+			else
+			{
+				if (array_siz + 1 > get_max_capacity_inthisArr())
+				{
+					// create new parent ptr array
+					int *chptr = (int *)ptrArray;
+					ptrArray = reinterpret_cast<fmCirculArr<int *> *>(fm->_New(sizeof(fmCirculArr<int *>), mbDbg, (int)fmlayer));
+					ptrArray->Init(fragment_siz_pow2, mbDbg, (int)fmlayer);
+
+					ptrArray->operator[](0) = chptr;
+					array_depth += 1;
+					for (int i = 1; i < (1 << fragment_siz_pow2); ++i)
+					{
+						ptrArray->operator[](i) = nullptr;
+					}
+				}
+				// create child ptr arrays
+				int next = array_siz;
+				fmCirculArr<int *> *ptr = ptrArray;
+				int upcapacity = 0;
+				for (int i = 0; i < array_depth; ++i)
+				{
+					int inindex = (int)(next >> fragment_siz_pow2 * (array_depth - i)) & (unsigned int)fragPercent;
+
+					upcapacity += (inindex) << (fragment_siz_pow2 * (array_depth - i));
+
+					fmCirculArr<int *> *tptr = ptr;
+					ptr = reinterpret_cast<fmCirculArr<int *> *>(tptr->operator[](inindex));
+					if (ptr == nullptr)
+					{
+						if (i == array_depth - 1)
+						{
+							fmCirculArr<T> *aptr =
+								reinterpret_cast<fmCirculArr<T> *>(fm->_New(sizeof(fmCirculArr<T>), mbDbg, (int)fmlayer));
+							aptr->Init(fragment_siz_pow2, mbDbg, (int)fmlayer);
+							tptr->operator[](inindex) = (int *)aptr;
+							ptr = reinterpret_cast<fmCirculArr<int *> *>(tptr->operator[](inindex));
+						}
+						else
+						{
+							fmCirculArr<int *> *insptr =
+								reinterpret_cast<fmCirculArr<int *>*>(fm->_New(sizeof(fmCirculArr<int *>), mbDbg, (int)fmlayer));
+							insptr->Init(fragment_siz_pow2, mbDbg, (int)fmlayer);
+							tptr->operator[](inindex) = (int *)insptr;
+
+							ptr = reinterpret_cast<fmCirculArr<int *> *>(tptr->operator[](inindex));
+						}
+					}
+				}
+				fmCirculArr<T> *vptr = reinterpret_cast<fmCirculArr<T> *>(ptr);
+				// T *vptr = ptr;
+				int inindex = (int)(next) & (unsigned int)fragPercent;
+				upcapacity += 1 << fragment_siz_pow2;
+				vptr->operator[](inindex) = value;
+				// capacity update
+				array_capacity = upcapacity;
+				array_siz += 1;
+			}
+		}
+
+		void pop_back()
+		{
+			T nullt = 0;
+			//set(array_siz - 1, nullt);
+			(*this)[array_siz - 1] = nullt;
+			array_siz -= 1;
+		}
+
+		inline unsigned int size(){
+			return array_siz;
+		}
+		//use caching. (pre bake function.)
+		T &operator[](size_t index)
+		{
+			if((last_outerIndex >> fragment_siz_pow2) == index >> fragment_siz_pow2){
+				ui32 k = index & (unsigned int)fragPercent;
+				return lastCArr->operator[](k);
+			}
+			
+			if (index >= array_capacity)
+			{
+				cout << "error! array index bigger than capacity!" << endl;
+				T nullv;
+				byte8* carr = reinterpret_cast<byte8*>(&nullv);
+				for(int i=0;i<sizeof(T);++i){
+					carr[i] = 0;
+				}
+				return nullv;
+			}
+
+			fmCirculArr<int *> *ptr = ptrArray;
+			for (int i = 0; i < array_depth; ++i)
+			{
+				int depth_index = (index >> (fragment_siz_pow2 * (array_depth - i))) & (unsigned int)fragPercent;
+				ptr = reinterpret_cast<fmCirculArr<int *> *>( ptr->operator[](depth_index));
+			}
+			fmCirculArr<T> *vptr = reinterpret_cast<fmCirculArr<T> *>(ptr);
+
+			lastCArr = vptr;
+			last_outerIndex = index;
+
+			// T *vptr = ptr;
+			int inindex = ((int)(index)) & (unsigned int)fragPercent;
+			return vptr->operator[](inindex);
+		}
+
+		fmCirculArr<T> *get_bottom_array(int index)
+		{
+			if((last_outerIndex >> fragment_siz_pow2) == index >> fragment_siz_pow2){
+				return lastCArr;
+			}
+
+			if (index >= array_capacity)
+			{
+				return nullptr;
+			}
+			fmCirculArr<int *> *ptr = ptrArray;
+			for (int i = 0; i < array_depth; ++i)
+			{
+				int depth_index = (index >> (fragment_siz_pow2 * (array_depth - i))) & (unsigned int)fragPercent;
+				ptr = reinterpret_cast<fmCirculArr<int *> *>( ptr->operator[](depth_index));
+				//ptr = reinterpret_cast<fmCirculArr<int *> *>(ptr->operator[]((int)((index >> (1 << fragment_siz_pow2) * (array_depth - i))) & fragPercent));
+			}
+			fmCirculArr<T> *vptr = reinterpret_cast<fmCirculArr<T> *>(ptr);
+			return vptr;
+		}
+
+		fmCirculArr<int *> *get_ptr_array(int index, int height)
+		{
+			if (index >= array_capacity)
+			{
+				return nullptr;
+			}
+			fmCirculArr<int *> *ptr = ptrArray;
+			for (int i = 0; i < array_depth - height; ++i)
+			{
+				int depth_index = (index >> (fragment_siz_pow2 * (array_depth - i))) & (unsigned int)fragPercent;
+				ptr = reinterpret_cast<fmCirculArr<int *> *>( ptr->operator[](depth_index));
+			}
+			return ptr;
+		}
+
+		// direction : -1 or 1
+		void move(int index, int direction, bool expend)
+		{
+			ui32 fragSiz = (1 << fragment_siz_pow2);
+			T save;
+			fmCirculArr<T> *corearr = get_bottom_array(index);
+			int inindex = index & (unsigned int)fragPercent;
+			int last = 0;
+			if (direction > 0)
+			{
+				last = (fragSiz) - direction;
+			}
+			save = corearr->operator[](last);
+
+			if (direction > 0)
+			{
+				for (int i = last; i >= inindex; --i)
+				{
+					corearr->operator[](i) = corearr->operator[](i - 1);
+				}
+			}
+			else
+			{
+				for (int i = inindex - 1; i < fragSiz; ++i)
+				{
+					corearr->operator[](i) = corearr->operator[](i + 1);
+				}
+			}
+
+			if (direction > 0)
+			{
+				int next = index;
+				while (true)
+				{
+					next = ((int)(next >> fragment_siz_pow2) + 1) << fragment_siz_pow2;
+					fmCirculArr<T> *temparr = get_bottom_array(next);
+
+					if (temparr == nullptr)
+					{
+						if (expend)
+						{
+							push(save);
+						}
+						break;
+					}
+
+					fmCirculArr<T> *nextarr = nullptr;
+					
+					nextarr = get_bottom_array(next + fragSiz);
+					T ss;
+					if (nextarr == nullptr)
+					{
+						int ind = (array_siz - 1) & (unsigned int)fragPercent;
+						ss = temparr->operator[](ind);
+					}
+					else
+					{
+						ss = temparr->operator[](fragSiz - 1);
+					}
+
+					temparr->move_pivot(-direction);
+					if (direction > 0)
+					{
+						temparr->operator[](0) = save;
+					}
+					else
+					{
+						temparr->operator[](fragSiz - 1) = save;
+					}
+
+					save = ss;
+				}
+			}
+			else
+			{
+				int next = array_siz - 1 + fragSiz;
+				while (true)
+				{
+					next = ((int)(next >> fragment_siz_pow2) - 1) << fragment_siz_pow2;
+					if (next < 0)
+						break;
+					fmCirculArr<T> *temparr = get_bottom_array(next);
+
+					if (temparr == nullptr)
+					{
+						continue;
+					}
+
+					T ss;
+					if ((next - fragSiz) >> fragment_siz_pow2 == index >> fragment_siz_pow2)
+					{
+						int ind = (array_siz - 1) & (unsigned int)fragPercent;
+						ss = temparr->operator[](0);
+
+						if (next + fragSiz >= array_siz)
+						{
+							temparr->move_pivot(-direction);
+							array_siz -= 1;
+						}
+						else
+						{
+							temparr->move_pivot(-direction);
+							temparr->operator[](fragSiz - 1) = save;
+						}
+
+						save = ss;
+
+						corearr->operator[](fragSiz - 1) = ss;
+						break;
+					}
+					else
+					{
+						ss = temparr->operator[](0);
+					}
+
+					if (next + fragSiz >= array_siz)
+					{
+						temparr->move_pivot(-direction);
+						array_siz -= 1;
+					}
+					else
+					{
+						temparr->move_pivot(-direction);
+						temparr->operator[](fragSiz - 1) = save;
+					}
+
+					save = ss;
+				}
+			}
+		}
+
+		void printstate(char sig)
+		{
+			cout << sig << "_"
+				 << "arr siz : " << array_siz << "[ ";
+			for (int u = 0; u < array_siz; ++u)
+			{
+				if (u & (unsigned int)fragPercent == 0)
+				{
+					int uu = u;
+					cout << ">";
+					for (int k = 0; k < array_depth; ++k)
+					{
+						uu = uu >> fragment_siz_pow2;
+						if (uu & (unsigned int)fragPercent == 0)
+						{
+							cout << ">";
+						}
+					}
+				}
+				cout << this->operator[](u) << ", ";
+			}
+			cout << "]" << endl;
+		}
+
+		void insert(int index, T value, bool expend)
+		{
+			move(index, 1, expend);
+			//set(index, value);
+			(*this)[index] = value;
+		}
+
+		void erase(int index)
+		{
+			if (index + 1 == array_siz)
+			{
+				T nullt = 0;
+				//set(index, nullt);
+				(*this)[index] = nullt;
+				array_siz -= 1;
+			}
+			else
+			{
+				move(index + 1, -1, false);
+			}
+		}
+
+		void NULLState()
+		{
+			ptrArray = nullptr;
+			lastCArr = nullptr;
+			last_outerIndex = 0;
+			array_siz = 0;
+			fragPercent = 0;
+			array_capacity = 0;
+			fragment_siz_pow2 = 0;
+			array_depth = 1;
+			mbDbg = false;
+			fmlayer = -1;
+		}
+
+		T & at(size_t i)
+		{
+			ui32 ind = i;
+			if((last_outerIndex >> fragment_siz_pow2) == ind >> fragment_siz_pow2){
+				return lastCArr->operator[](ind & (unsigned int)fragPercent);
+			}
+
+			if (ind >= array_capacity)
+			{
+				T nullv;
+				byte8* carr = reinterpret_cast<byte8*>(&nullv);
+				for(int i=0;i<sizeof(T);++i){
+					carr[i] = 0;
+				}
+				cout << "error! array index bigger than capacity!" << endl;
+				return nullv;
+			}
+			fmCirculArr<int *> *ptr = ptrArray;
+			for (int i = 0; i < array_depth; ++i)
+			{
+				int depth_index = (ind >> (fragment_siz_pow2 * (array_depth - i))) & (unsigned int)fragPercent;
+				ptr = reinterpret_cast<fmCirculArr<int *> *>( ptr->operator[](depth_index));
+			}
+			fmCirculArr<T> *vptr = reinterpret_cast<fmCirculArr<T> *>(ptr);
+
+			lastCArr = vptr;
+			last_outerIndex = ind;
+
+			// T *vptr = ptr;
+			int inindex = ((int)(ind)) & (unsigned int)fragPercent;
+			return vptr->operator[](inindex);
+		}
+
+		void clear()
+		{
+			array_siz = 0;
+			last_outerIndex = 0;
+			lastCArr = get_bottom_array(0);
+			//NULLState();
+		}
+
+		T & last() const
+		{
+			return at(array_siz - 1);
+		}
+
+		//need test
+		void release()
+		{
+			if(!mbDbg) return;
+			for (ui32 k = 0; k < array_depth; ++k)
+			{
+				ui32 maxn = 1 << (fragment_siz_pow2 * array_depth - k);
+				for (ui32 n = 0; n < maxn; ++n)
+				{
+					ui32 seek = n << (fragment_siz_pow2 * (k + 1));
+					fmCirculArr<int *> *ptr = ptrArray;
+					for (int i = 0; i < array_depth - k; ++i)
+					{
+						ptr = (fmCirculArr<int *> *)ptr->operator[](
+							(int)((seek >> (fragment_siz_pow2 * (array_depth - i)))) & ((1 << (fragment_siz_pow2 + 1)) - 1));
+					}
+
+					if (ptr == nullptr)
+					{
+						break;
+					}
+
+					if (k == 0)
+					{
+						// most bottom real array
+						fmCirculArr<T> *vptr = reinterpret_cast<fmCirculArr<T> *>(ptr);
+						vptr->Release();
+						fm->_Delete(reinterpret_cast<byte8 *>(vptr), sizeof(fmCirculArr<T>));
+						// delete vptr;
+					}
+					else
+					{
+						// not bottom ptr array
+						fmCirculArr<int *> *vptr = reinterpret_cast<fmCirculArr<int *> *>(ptr);
+						vptr->Release();
+						fm->_Delete(reinterpret_cast<byte8 *>(vptr), sizeof(fmCirculArr<int *>));
+					}
+				}
+			}
+
+			ptrArray->Release();
+			fm->_Delete((byte8 *)ptrArray, sizeof(fmCirculArr<int *>));
+			// delete[]ptrArray;
+		}
+	};
 
 	class BitArray
 	{
 	  public:
-		FM_Model * FM = nullptr;
-		int bit_arr_size = 0;	// saved bit count.
-		int byte_arr_size = 0;	// saved byte count.
-		byte8 *Arr = nullptr;
-		int up = 0;
+	  	byte8 *Arr = nullptr;
+		ui32 bit_arr_size = 0;	// saved bit count.
+		ui32 byte_arr_size = 0;	// saved byte count.
+		ui32 up = 0;
+		short fmlayer = -1;
+		bool isdebug = false;
+		
 
-		  BitArray():FM(nullptr), bit_arr_size(0), byte_arr_size(0), Arr(nullptr), up(0)
+		  BitArray(): bit_arr_size(0), byte_arr_size(0), Arr(nullptr), up(0), fmlayer(-1), isdebug(false)
 		{
 
 		}
 
-		BitArray(FM_Model * fm, size_t bitsize):
-			FM(fm), bit_arr_size(bitsize), byte_arr_size((bitsize / 8) + 1), up(0)
+		/*
+		BitArray(size_t bitsize):
+			bit_arr_size(bitsize), byte_arr_size((bitsize / 8) + 1), up(0)
 		{
-			Arr = FM->_New(byte_arr_size);
+			Arr = fm->_New(byte_arr_size);
 		}
+		*/
 
 		virtual ~ BitArray()
 		{
-			FM->_Delete(Arr, byte_arr_size);
+			if(isdebug){
+				fm->_Delete(Arr, byte_arr_size);
+				Arr = nullptr;
+			}
+		}
+
+		void NULLState(){
+
+		}
+
+		void Init(ui32 siz, bool isdbg, int pfmlayer = -1){
+			bit_arr_size = siz;
+			byte_arr_size = (bit_arr_size >> 3) + 1;
+			isdebug = isdbg;
+			fmlayer = pfmlayer;
+			Arr = fm->_New(byte_arr_size, isdebug, fmlayer);
+			if(fmlayer < 0){
+				fmlayer = fm->tempStack[fm->get_threadid(std::this_thread::get_id())]->tempFM.size()-1;
+			}
 		}
 
 		string get_bit_char()
@@ -1727,256 +2787,6 @@ namespace freemem
 				int loc = index % 8;
 				return _GetByte(Arr[i], loc);
 			}
-		}
-	};
-}
-
-extern freemem::FM_System0 *fm;
-	
-namespace freemem{
-	template < typename T > class fmvecarr
-	{
-	  public:
-		T *Arr;
-		size_t maxsize = 0;
-		int up = 0;
-		bool islocal = true;
-		bool isdebug = false;
-		int fmlayer = -1;
-
-		fmvecarr()
-		{
-			Arr = nullptr;
-			maxsize = 0;
-			up = 0;
-			islocal = true;
-			fmlayer = -1;
-		}
-
-		virtual ~ fmvecarr()
-		{
-			if (islocal)
-			{
-				if (isdebug)
-				{
-					fm->_Delete(reinterpret_cast < byte8 * >(Arr), sizeof(T) * maxsize);
-				}
-				Arr = nullptr;
-			}
-		}
-
-		void NULLState()
-		{
-			Arr = nullptr;
-			maxsize = 0;
-			up = 0;
-			fmlayer = -1;
-		}
-
-		void Init(size_t siz, bool local, bool isdebug = false)
-		{
-			T *newArr;
-			if (isdebug)
-			{
-				newArr = (T *) fm->_New(sizeof(T) * siz, isdebug);
-			}
-			else
-			{
-				newArr = (T *) fm->_tempNew(sizeof(T) * siz, fmlayer);
-				if(fmlayer < 0){
-					fmlayer = fm->tempStack[fm->get_threadid(std::this_thread::get_id())]->tempFM.size()-1;
-				}
-				else{
-					//cout << "reuse" << endl;
-				}
-			}
-			if (Arr != nullptr)
-			{
-				for (int i = 0; i < maxsize; ++i)
-				{
-					newArr[i] = Arr[i];
-				}
-
-				if (isdebug)
-				{
-					fm->_Delete(reinterpret_cast < byte8 * >(Arr), sizeof(T) * maxsize);
-				}
-				Arr = nullptr;
-			}
-
-			islocal = local;
-			Arr = newArr;
-			maxsize = siz;
-		}
-
-		T & at(size_t i)
-		{
-			return Arr[i];
-		}
-
-		T & operator[](size_t i) const
-		{
-			return Arr[i];
-		}
-
-		void push_back(T value)
-		{
-			if (up < maxsize)
-			{
-				Arr[up] = value;
-				up += 1;
-			}
-			else
-			{
-				Init(maxsize * 2 + 1, islocal, isdebug);
-				Arr[up] = value;
-				up += 1;
-			}
-		}
-
-		void pop_back()
-		{
-			if (up - 1 >= 0)
-			{
-				up -= 1;
-				// Arr[up] = 0;
-			}
-		}
-
-		void erase(size_t i)
-		{
-			for (int k = i; k < up; ++k)
-			{
-				Arr[k] = Arr[k + 1];
-			}
-			up -= 1;
-		}
-
-		void insert(size_t i, T value)
-		{
-			push_back(value);
-			for (int k = maxsize - 1; k > i; k--)
-			{
-				Arr[k] = Arr[k - 1];
-			}
-			Arr[i] = value;
-		}
-
-		inline size_t size() const
-		{
-			return up;
-		}
-
-		void clear()
-		{
-			if (Arr != nullptr && isdebug)
-				fm->_Delete(reinterpret_cast < byte8 * >(Arr), sizeof(T) * maxsize);
-			Arr = nullptr;
-			up = 0;
-
-			Init(2, islocal, isdebug);
-		}
-
-		T & last() const
-		{
-			if (up > 0)
-			{
-				return Arr[up - 1];
-			}
-			return Arr[0];
-		}
-
-		void release()
-		{
-			if (Arr != nullptr && isdebug)
-				fm->_Delete(reinterpret_cast < byte8 * >(Arr), sizeof(T) * maxsize);
-			Arr = nullptr;
-			up = 0;
-			islocal = false;
-		}
-	};
-
-	template < typename T > struct fmlist_node
-	{
-		T value;
-		  fmlist_node < T > *next = nullptr;
-		  fmlist_node < T > *prev = nullptr;
-	};
-	template < typename T > class fmlist
-	{
-	  public:
-		bool isdebug = false;
-		bool islocal = false;
-		size_t size = 0;
-		fmlist_node < T > *first;
-
-		fmlist(){}
-		~fmlist(){
-			if (!islocal)
-			{
-				while (first->next != nullptr)
-				{
-					erase(first);
-				}
-				if (isdebug)
-				{
-					fm->_Delete(reinterpret_cast < byte8 * >(first), sizeof(fmlist_node < T >));
-				}
-			}
-		}
-
-		void Init(T fv) {
-			first = (fmlist_node<T>*)fm->_tempNew(sizeof(fmlist_node<T>), -1);
-			first->value = fv;
-			first->next = nullptr;
-			first->prev = nullptr;
-			++size;
-		}
-
-		void release()
-		{
-		}
-
-		void push_front(T value)
-		{
-			fmlist_node < T > *sav = first;
-			first = (fmlist_node < T > *)fm->_New(sizeof(fmlist_node < T >), isdebug);
-			first->value = value;
-			first->next = sav;
-			first->prev = nullptr;
-			sav->prev = first;
-			++size;
-		}
-
-		inline fmlist_node < T > *getnext(fmlist_node < T > *node)
-		{
-			return node->next;
-		}
-
-		inline fmlist_node < T > *getprev(fmlist_node < T > *node)
-		{
-			return node->prev;
-		}
-
-		void erase(fmlist_node < T > *node)
-		{
-			if (node == first)
-			{
-				first = node->next;
-			}
-			if (node->prev != nullptr)
-			{
-				node->prev->next = node->next;
-			}
-			if (node->next != nullptr)
-			{
-				node->next->prev = node->prev;
-			}
-			if (isdebug)
-			{
-				fm->_Delete(reinterpret_cast < byte8 * >(node), sizeof(fmlist_node < T >));
-			}
-			--size;
 		}
 	};
 }
