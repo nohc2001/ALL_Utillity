@@ -3,6 +3,25 @@
 #ifndef UTILL_BITOPER
 #define UTILL_BITOPER
 
+typedef unsigned char ui8;
+typedef unsigned short ui16;
+typedef unsigned int ui32;
+typedef unsigned long long ui64;
+typedef unsigned int vui128 __attribute__((vector_size(16)));
+typedef unsigned int vui256 __attribute__((vector_size(32)));
+typedef unsigned int vui512 __attribute__((vector_size(64)));
+struct page4096{
+        unsigned char data[4096] = {};
+};
+
+//todo : 
+/*
+1. function is all inline function or macro.
+2. all function support to all siz type. (ui8, ui16, ui32, ui64)
+3. all function support to same work to multiple data (with SIMD(vui128, vui256, vui512) and ILP and Asynchrony Reapeat) with 1 page(4096)
+4. all function comment describe predict cost.
+*/
+
 //###################################################################################
 //###################################################################################
 // 2. Basic Knowledge
@@ -23,6 +42,12 @@ p : pass
 */
 
 // basic parameter type is unsigned integer types.
+
+//--------------------------------------------------------------
+// 0-1 if not zero, return 1;
+//--------------------------------------------------------------
+#define pass0or1(x) !!x
+
 
 //--------------------------------------------------------------
 // 2-1 control last bit
@@ -279,4 +304,130 @@ ex> 4bit data decode to 5bit data
 //--------------------------------------------------------------
 // 2-12 comparison predicate
 //--------------------------------------------------------------
+
+//...
+
+//--------------------------------------------------------------
+// 5-1 counting 1bit in data
+//--------------------------------------------------------------
+inline ui8 count1bit(ui8 x){
+        x = x - ((x >> 1) & 0x55);
+        x = (x & 0x33) + ((x>>2) & 0x33);
+        x = (x+(x>>4)) & 0x0F;
+        return x & 0x0F;
+}
+
+inline ui16 count1bit(ui16 x){
+        x = (x & 0x5555) + ((x >> 1) & 0x5555);
+        x = (x & 0x3333) + ((x >> 2) & 0x3333);
+        x = (x & 0x0F0F) + ((x >> 4) & 0x0F0F);
+        x = (x & 0x00FF) + ((x >> 8) & 0x00FF);
+        return x;
+}
+
+inline ui32 count1bit(ui32 x){
+        x = (x & 0x55555555) + ((x >> 1) & 0x55555555);
+        x = (x & 0x33333333) + ((x >> 2) & 0x33333333);
+        x = (x & 0x0F0F0F0F) + ((x >> 4) & 0x0F0F0F0F);
+        x = (x & 0x00FF00FF) + ((x >> 8) & 0x00FF00FF);
+        x = (x & 0x0000FFFF) + ((x >> 16) & 0x0000FFFF);
+        return x;
+}
+
+inline ui64 count1bit(ui64 x){
+        x = (x & 0x5555555555555555) + ((x >> 1) & 0x5555555555555555);
+        x = (x & 0x3333333333333333) + ((x >> 2) & 0x3333333333333333);
+        x = (x & 0x0F0F0F0F0F0F0F0F) + ((x >> 4) & 0x0F0F0F0F0F0F0F0F);
+        x = (x & 0x00FF00FF00FF00FF) + ((x >> 8) & 0x00FF00FF00FF00FF);
+        x = (x & 0x0000FFFF0000FFFF) + ((x >> 16) & 0x0000FFFF0000FFFF);
+        x = (x & 0x00000000FFFFFFFF) + ((x >> 32) & 0x00000000FFFFFFFF);
+        return x;
+}
+
+struct count1bit_context4{
+        vui256 x1; // x << 1
+        vui256 x2; // x & const
+        vui256 x3; // x1 & const
+        // x <- x2 + x3
+};
+ui32 count1bit_page(page4096* source, page4096* dest){
+        constexpr unsigned int constV[5] = {0x55555555, 0x33333333, 0x0F0F0F0F, 0x00FF00FF, 0x0000FFFF};
+        count1bit_context4 cxt[64];
+        vui256* vd = (vui256*)dest;
+        vui256* vs = (vui256*)source;
+        for(int i=0;i<14;i+=1){
+                cxt[i+14].x1 = *vs << 1;
+                cxt[i+14].x2 = *vs & constV[0];
+                cxt[i+13].x3 = cxt[i+13].x1 & constV[0];
+                cxt[i+12].x3 = cxt[i+12].x2 + cxt[i+12].x3;
+                cxt[i+11].x1 = cxt[i+11].x3 << 2;
+                cxt[i+11].x2 = cxt[i+11].x3 & constV[1];
+                cxt[i+10].x3 = cxt[i+10].x1 & constV[1];
+                cxt[i+9].x3 = cxt[i+9].x2 + cxt[i+9].x3;
+                cxt[i+8].x1 = cxt[i+8].x3 << 4;
+                cxt[i+8].x2 = cxt[i+8].x3 & constV[2];
+                cxt[i+7].x3 = cxt[i+7].x1 & constV[2];
+                cxt[i+6].x3 = cxt[i+6].x2 + cxt[i+6].x3;
+                cxt[i+5].x1 = cxt[i+5].x3 << 8;
+                cxt[i+5].x2 = cxt[i+5].x3 & constV[3];
+                cxt[i+4].x3 = cxt[i+4].x1 & constV[3];
+                cxt[i+3].x3 = cxt[i+3].x2 + cxt[i+3].x3;
+                cxt[i+2].x1 = cxt[i+3].x1 << 16;
+                cxt[i+2].x2 = cxt[i+3].x1 & constV[4];
+                cxt[i+1].x3 = cxt[i+1].x1 & constV[4];
+                //*v = cxt[i].x2 + cxt[i].x3;
+                vs += 1;
+        }
+
+        for(int i=14;i<(14+32);i+=1){
+                vd += 1;
+                cxt[i+14].x1 = *vs << 1;
+                cxt[i+14].x2 = *vs & constV[0];
+                cxt[i+13].x3 = cxt[i+13].x1 & constV[0];
+                cxt[i+12].x3 = cxt[i+12].x2 + cxt[i+12].x3;
+                cxt[i+11].x1 = cxt[i+11].x3 << 2;
+                cxt[i+11].x2 = cxt[i+11].x3 & constV[1];
+                cxt[i+10].x3 = cxt[i+10].x1 & constV[1];
+                cxt[i+9].x3 = cxt[i+9].x2 + cxt[i+9].x3;
+                cxt[i+8].x1 = cxt[i+8].x3 << 4;
+                cxt[i+8].x2 = cxt[i+8].x3 & constV[2];
+                cxt[i+7].x3 = cxt[i+7].x1 & constV[2];
+                cxt[i+6].x3 = cxt[i+6].x2 + cxt[i+6].x3;
+                cxt[i+5].x1 = cxt[i+5].x3 << 8;
+                cxt[i+5].x2 = cxt[i+5].x3 & constV[3];
+                cxt[i+4].x3 = cxt[i+4].x1 & constV[3];
+                cxt[i+3].x3 = cxt[i+3].x2 + cxt[i+3].x3;
+                cxt[i+2].x1 = cxt[i+3].x1 << 16;
+                cxt[i+2].x2 = cxt[i+3].x1 & constV[4];
+                cxt[i+1].x3 = cxt[i+1].x1 & constV[4];
+                *vd = cxt[i].x2 + cxt[i].x3;
+                vs += 1;
+        }
+}
+
+//--------------------------------------------------------------
+// 5-3 counting front0bit
+//--------------------------------------------------------------
+
+inline ui32 count_front0bit(ui8 x){
+        ui32 casev = !!x * (1 + ((!!(x>>4))<<1) + (!!(x>>6)));
+        ui32 n=1;
+        switch(casev){
+                case 0:
+                        return 8;
+                case 1: // 40 60
+                        break;
+                case 4: // 41 61
+                        n+=4; x <<= 4;
+                case 2: // 40 61
+                        n+=2; x <<= 2;
+                        break;
+                case 3: // 41 60
+                        n+=4; x <<= 4;
+                        break;
+        }
+        n = n - (x>>7);
+        return n;
+}
+
 #endif
