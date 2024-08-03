@@ -430,4 +430,37 @@ inline ui32 count_front0bit(ui8 x){
         return n;
 }
 
+inline ui32 count_front0bit(ui16 x){
+        ui32 casev = !!x * (1 + ((!!(x>>8))<<2) + (!!(x>>12) << 1) + (!!(x>>14)));
+        ui32 n=1;
+        switch(casev){
+                case 0:
+                        return 16;
+                case 1: // 8-0 12-0 14-0
+                        break;
+                case 4: // 8-0 12-1 14-1
+                        n+=4; x <<= 4;
+                case 2: // 8-0 12-1 14-0
+                        n+=2; x <<= 2;
+                        break;
+                case 3: // 8-0 12-1 14-0
+                        n+=4; x <<= 4;
+                        break;
+                case 5: // 8-1 12-0 14-0
+                        n+=8; x <<= 8;
+                        break;
+                case 8: // 8-1 12-1 14-1
+                        n+=8; x <<= 8;
+                        n+=4; x <<= 4;
+                case 6: // 8-1 12-1 14-0
+                        n+=2; x <<= 2;
+                        break;
+                case 7: // 8-1 12-1 14-0
+                        n+=8; x <<= 8;
+                        break;
+        }
+        n = n - (x>>15);
+        return n;
+}
+
 #endif
