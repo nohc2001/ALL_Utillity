@@ -349,21 +349,18 @@ template < typename T > class vecarr
 	T * Arr;
 	size_t maxsize = 0;
 	int up = 0;
-	bool islocal = true;
+	//bool islocal = true;
 
 	vecarr()
 	{
 		Arr = nullptr;
 		maxsize = 0;
 		up = 0;
-		islocal = true;
+		//islocal = true;
 	}
 
 	~vecarr()
 	{
-		if(islocal){
-			release();
-		}
 	}
 
 	void NULLState()
@@ -410,7 +407,7 @@ template < typename T > class vecarr
 		}
 		else
 		{
-			Init(maxsize * 2 + 1);
+			Init(maxsize * 2);
 			Arr[up] = value;
 			up += 1;
 		}
@@ -456,7 +453,7 @@ template < typename T > class vecarr
 		Arr = nullptr;
 		up = 0;
 
-		Init(2, islocal);
+		Init(2);
 	}
 	
 	T& last(){
@@ -474,4 +471,5 @@ template < typename T > class vecarr
 		up = 0;
 	}
 };
+
 #endif

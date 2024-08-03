@@ -13,16 +13,16 @@ typedef unsigned char ui8;
 typedef unsigned short ui16;
 typedef unsigned int ui32;
 typedef unsigned long long ui64;
-typedef unsigned int vui128 __attribute__ ((vector_size (16)));
-typedef unsigned int vui256 __attribute__ ((vector_size (32)));
+typedef unsigned int vui128 __attribute__((vector_size(16)));
+typedef unsigned int vui256 __attribute__((vector_size(32)));
 typedef char si8;
 typedef short si16;
 typedef int si32;
 typedef long long si64;
-typedef int vsi128 __attribute__ ((vector_size (16)));
-typedef int vsi256 __attribute__ ((vector_size (32)));
+typedef int vsi128 __attribute__((vector_size(16)));
+typedef int vsi256 __attribute__((vector_size(32)));
 
-//todo :
+// todo :
 /*
 0. most mem allocate in fm is sized 4096 (1page)
 1. fm_model1 - seperate Data and lifecheck
@@ -50,31 +50,34 @@ namespace freemem
 
 #define _GetByte(dat, loc) (dat >> loc) % 2
 #define _SetByte(dat, loc, is) dat = freemem::SetByte8(dat, loc, is);
-#define vins_New(FM, T, VariablePtr) ((T*)FM._New(sizeof(T)))->Init(); Init_VPTR<T>(VariablePtr);
-#define ins_New(FM, T, VariablePtr) ((T*)FM._New(sizeof(T)))->Init();
+#define vins_New(FM, T, VariablePtr)   \
+	((T *)FM._New(sizeof(T)))->Init(); \
+	Init_VPTR<T>(VariablePtr);
+#define ins_New(FM, T, VariablePtr) ((T *)FM._New(sizeof(T)))->Init();
 
-	template < typename T > void Init_VPTR_x86(void *obj)
+	template <typename T>
+	void Init_VPTR_x86(void *obj)
 	{
 		T go = T();
-		__int32_t vp = *(__int32_t *) & go;
-		 *((__int32_t *) obj) = vp;
+		__int32_t vp = *(__int32_t *)&go;
+		*((__int32_t *)obj) = vp;
 	}
 
-	template < typename T > void Init_VPTR_x64(void *obj)
+	template <typename T>
+	void Init_VPTR_x64(void *obj)
 	{
 		T go;
-		__int64_t vp = *(__int64_t *) & go;
-		*((__int64_t *) obj) = vp;
+		__int64_t vp = *(__int64_t *)&go;
+		*((__int64_t *)obj) = vp;
 	}
 
 	class FM_Model
 	{
-	  public:
+	public:
 		FM_Model()
 		{
-
 		}
-		virtual ~ FM_Model()
+		virtual ~FM_Model()
 		{
 		}
 
@@ -88,18 +91,18 @@ namespace freemem
 			return;
 		}
 
-		virtual bool _Delete(byte8 * variable, unsigned int size)
+		virtual bool _Delete(byte8 *variable, unsigned int size)
 		{
 			return false;
 		}
 
 		// �ش� �ּҿ� �޸𸮰� �Ҵ�Ǿ�����.
-		virtual bool bAlloc(byte8 * variable, unsigned int size)
+		virtual bool bAlloc(byte8 *variable, unsigned int size)
 		{
 			return true;
 		}
 
-		virtual bool canInclude(byte8 * var, int size)
+		virtual bool canInclude(byte8 *var, int size)
 		{
 			return true;
 		}
@@ -110,84 +113,101 @@ namespace freemem
 		byte8 end = 10;
 		byte8 *start = new byte8();
 		unsigned int RemainMemSiz = (unsigned int)(start - &end);
-		cout << "RemainMemSiz : " << RemainMemSiz << " byte \t(" << (float)RemainMemSiz /
-			1000.0f << " KB \t(" << (float)RemainMemSiz /
-			1000000.0f << " MB \t(" << (float)RemainMemSiz / 1000000000.0f << " GB ) ) )" << endl;
+		cout << "RemainMemSiz : " << RemainMemSiz << " byte \t(" << (float)RemainMemSiz / 1000.0f << " KB \t(" << (float)RemainMemSiz / 1000000.0f << " MB \t(" << (float)RemainMemSiz / 1000000000.0f << " GB ) ) )" << endl;
 		delete start;
 	}
 
 	// siz : 4096 byte
-	struct SmallPage{
+	struct SmallPage
+	{
 		byte8 Data[SMALL_PAGE_SIZE] = {};
 	};
 
-	class FmHeapPageManager{
+	// siz : 16 + 24 + 96 + extra80byte = 256 byte
+	class FmHeapPageManager
+	{
 	public:
-		vecarr<SmallPage*> pages;
-		unsigned int pagemeta_up = 0;
-		void* lastPageMeta;
+		vecarr<SmallPage *> pages;
+
+		unsigned short pageImortal_up[12] = {};
+		static constexpr unsigned short pageImortal_capacity[12] = {4096, 2048, 1024, 512, 256, 128, 64, 32, 16, 8, 4, 2};
+		void *lastPageImortal[12] = {};
+		byte8 extra[80] = {};
+		// 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048 ...
 
 		FmHeapPageManager() {}
 		~FmHeapPageManager() {}
 
-		void Init(){
+		void Init()
+		{
 			pages.NULLState();
-			pages.Init(8, false);
+			pages.Init(8);
 		}
 
-		void* Allocate(){
+		void *Allocate()
+		{
 			constexpr vui256 const_zero_vui256 = {0, 0, 0, 0, 0, 0, 0, 0};
 
-			void* sp = malloc(SMALL_PAGE_SIZE);
-			
-			//init to 0
-			for(int i=0;i<SMALL_PAGE_SIZE;i+=64){
-				*reinterpret_cast<vui256*>(sp+i) = const_zero_vui256;
-				*reinterpret_cast<vui256*>(sp+i+16) = const_zero_vui256;
-				*reinterpret_cast<vui256*>(sp+i+32) = const_zero_vui256;
-				*reinterpret_cast<vui256*>(sp+i+48) = const_zero_vui256;
+			void *sp = malloc(SMALL_PAGE_SIZE);
+
+			// init to 0
+			for (int i = 0; i < SMALL_PAGE_SIZE; i += 64)
+			{
+				*reinterpret_cast<vui256 *>(sp + i) = const_zero_vui256;
+				*reinterpret_cast<vui256 *>(sp + i + 16) = const_zero_vui256;
+				*reinterpret_cast<vui256 *>(sp + i + 32) = const_zero_vui256;
+				*reinterpret_cast<vui256 *>(sp + i + 48) = const_zero_vui256;
 			}
-			
-			pages.push_back(reinterpret_cast<SmallPage*>(sp));
-			
+
+			pages.push_back(reinterpret_cast<SmallPage *>(sp));
+
 			return sp;
 		}
 
-		void Release(){
-			for(int i=0;i<pages.size();++i){
+		void Release()
+		{
+			for (int i = 0; i < pages.size(); ++i)
+			{
 				free(pages.at(i));
 			}
 			pages.release();
 		}
 
-		void* Allocate_PageMeta(){
-			if(pagemeta_up == 15){
-				lastPageMeta = (void*)Allocate();
-				pagemeta_up = 0;
+		void *Allocate_ImortalMemory(unsigned int size)
+		{
+			unsigned int index = log2(size - 1) + 1;
+
+			if (pageImortal_up[index] == pageImortal_capacity[index])
+			{
+				lastPageImortal[index] = (void *)Allocate();
+				pageImortal_up[index] = 0;
 			}
 
-			unsigned int up = pagemeta_up;
-			pagemeta_up += 1;
-			return lastPageMeta + (up << 4);
+			unsigned int up = pageImortal_up[index];
+			pageImortal_up[index] += 1;
+			return lastPageImortal[index] + (up << index);
 		}
 	};
 
 	FmHeapPageManager globalHeapPage;
 
 	// siz : 16 byte
-	struct PageMeta{
-		void* PageData;
+	struct PageMeta
+	{
+		void *PageData;
 		unsigned int Fup;
 		unsigned int extra_Flags; // 32 flags
 
-		void Allocate(){
+		void Allocate()
+		{
 			PageData = globalHeapPage.Allocate();
 			Fup = 0;
 			extra_Flags = 0;
 		}
 
-		void* _New(unsigned int size){
-			void* ptr = PageData+Fup;
+		void *_New(unsigned int size)
+		{
+			void *ptr = PageData + Fup;
 			Fup += size;
 			if (Fup >= SMALL_PAGE_SIZE)
 			{
@@ -203,9 +223,224 @@ namespace freemem
 	};
 	// use this in smalltempmem and fm0
 
-	class FM_Model0:FM_Model
+	typedef struct VP
 	{
-	  public:
+		char mod = 0;		// mod 0:value 1:ptr
+		int *ptr = nullptr; // arrgraph ptr or T ptr
+	};
+
+	template <typename T, typename V>
+	struct range
+	{
+		T end;
+		V value;
+	};
+
+	template <typename T, typename V>
+	class ArrGraph
+	{
+	public:
+		vecarr<range<T, V>> *ranges;
+		T minx = 0;
+		T maxx = 0;
+		T margin = 0;
+		bool islocal = false;
+		vecarr<VP> graph;
+
+		ArrGraph()
+		{
+		}
+		virtual ~ArrGraph()
+		{
+			if (islocal)
+			{
+				graph.release();
+				graph.NULLState();
+			}
+		}
+
+		ArrGraph *Init(T min, T max)
+		{
+			minx = min;
+			maxx = max;
+			ranges = (vecarr<range<T, V>> *)globalHeapPage.Allocate_ImortalMemory(sizeof(vecarr<range<T, V>>));
+			ranges->NULLState();
+			ranges->Init(2);
+			islocal = false;
+		}
+
+		range<T, V> Range(T end, V value)
+		{
+			range<T, V> r;
+			r.end = end;
+			r.value = value;
+			return r;
+		}
+
+		void push_range(range<T, V> r)
+		{
+			if (minx <= r.end && r.end <= maxx)
+			{
+				ranges->push_back(r);
+			}
+		}
+
+		void Compile()
+		{
+			if (ranges->size() > 2)
+			{
+				float d = (float)(maxx - minx);
+				float div = (float)ranges->size();
+				float f = d / div;
+				f = floor(f) + 1;
+				T average_length = (T)(f);
+				margin = average_length;
+				graph.NULLState();
+				graph.Init(ranges->size());
+				graph.up = ranges->size();
+				T start = minx;
+				T end = start;
+				for (int i = 0; i < graph.up; ++i)
+				{
+					end = start + average_length;
+					if (end > maxx)
+						end = maxx;
+					T rstart = minx;
+					for (int k = 0; k < ranges->up; ++k)
+					{
+						T rend = ranges->at(k).end;
+						if (rstart <= start && end <= rend)
+						{
+							// num
+							graph[i].mod = 0;
+							graph[i].ptr = reinterpret_cast<int *>(&ranges->at(k).value);
+							break;
+						}
+						else if (start <= rend && rend <= end)
+						{
+							// graph
+							ArrGraph<T, V> *newgraph = (ArrGraph<T, V> *)globalHeapPage.Allocate_ImortalMemory(sizeof(ArrGraph<T, V>));
+							newgraph->Init(start, end);
+							newgraph->push_range(ranges->at(k));
+							range<T, V> *r = &ranges->at(k + 1);
+							while (r->end < end)
+							{
+								newgraph->push_range(*r);
+								++k;
+								if (k >= ranges->size())
+								{
+									break;
+								}
+								r = &ranges->at(k + 1);
+							}
+							// input last range
+							range<T, V> lastr;
+							lastr = *r;
+							lastr.end = newgraph->maxx;
+							newgraph->push_range(lastr);
+							newgraph->Compile();
+							graph[i].ptr = reinterpret_cast<int *>(newgraph);
+							graph[i].mod = 1;
+							break;
+						}
+					}
+					start = end;
+				}
+			}
+			else if (ranges->size() == 2)
+			{
+				graph.NULLState();
+				graph.Init(2);
+				T center = ranges->at(0).end;
+				T start = minx;
+				T end = maxx - 1;
+				if (maxx - center > center - start)
+				{
+					minx = 2 * center + 1 - end;
+				}
+				else
+				{
+					maxx = 2 * center + 1 - start;
+				}
+				margin = (maxx - minx) / ranges->size();
+				VP vp0;
+				vp0.mod = 0;
+				vp0.ptr = reinterpret_cast<int *>(&ranges->at(0).value);
+				graph.push_back(vp0);
+				vp0.ptr = reinterpret_cast<int *>(&ranges->at(1).value);
+				graph.push_back(vp0);
+			}
+		}
+
+		T fx(T x)
+		{
+			static constexpr void *jumpptr[2] = {&&ISVALUE, &&ISGRAPH};
+			ArrGraph<T, V> *ag = this;
+			vecarr<VP> *g = &graph;
+			VP vp;
+			float f = 0;
+			int index = 0;
+
+		GET_START:
+			f = (float)x - (float)ag->minx;
+			f = f / (float)ag->margin;
+			index = (int)f;
+
+			vp = (*g)[index];
+			goto *jumpptr[vp.mod];
+
+		ISGRAPH:
+			ag = reinterpret_cast<ArrGraph<T, V> *>(vp.ptr);
+			g = &ag->graph;
+			goto GET_START;
+
+		ISVALUE:
+			return *reinterpret_cast<V *>(vp.ptr);
+		}
+
+		void print_state()
+		{
+			cout << "arrgraph minx : " << minx << "\t maxx : " << maxx << endl;
+			cout << "capacity : " << graph.size() << "\t margin : " << margin << endl;
+			for (int i = 0; i < graph.size(); ++i)
+			{
+				if (graph[i].mod == 0)
+				{
+					cout << "index : " << i << "] = " << *reinterpret_cast<V *>(graph[i].ptr) << endl;
+				}
+				else
+				{
+					cout << "index : " << i << "] = ptr : " << endl;
+					reinterpret_cast<ArrGraph<T, V> *>(graph[i].ptr)->print_state();
+					cout << endl;
+				}
+			}
+		}
+	};
+
+	int getcost(int n, int size)
+	{
+		int k = (n % size == 0) ? 0 : 1;
+		return (8 * size + 1) * (n / size + k);
+	}
+
+	int minarr(int siz, int *arr, int *indexout)
+	{
+		int min = arr[0];
+		for (int i = 0; i < siz; ++i)
+		{
+			if (min > arr[i])
+			{
+				min = arr[i];
+				*indexout = i;
+			}
+		}
+		return min;
+	}
+
+	class FM_Model0 : FM_Model
+	{
+	public:
 		unsigned int siz = 0;
 		byte8 *Data = nullptr;
 		unsigned int Fup = 0;
@@ -1051,6 +1286,7 @@ namespace freemem
 		int size = 0;
 	};
 
+	// siz : 32 byte
 	struct FmTempLayer{
 		vecarr < large_alloc > large;
 		vecarr < PageMeta * > tempFM;
@@ -1101,7 +1337,7 @@ namespace freemem
 					}
 				}
 				
-				PageMeta* pm = (PageMeta*)globalHeapPage.Allocate_PageMeta();
+				PageMeta* pm = (PageMeta*)globalHeapPage.Allocate_ImortalMemory(sizeof(PageMeta));
 				tempFM.push_back(pm);
 				return tempFM.last()->_New(size);
 			}
@@ -1116,12 +1352,12 @@ namespace freemem
 		}
 	};
 
-	
 	thread_local unsigned int threadID;
+	//siz : 16byte
 	struct TempStack
 	{
 	  public:
-		vecarr<FmTempLayer> layer;
+		vecarr<FmTempLayer*> layer;
 		//vecarr < vecarr < large_alloc > *>large;
 		//vecarr < vecarr < FM_Model0 * >*>tempFM;
 
@@ -1129,13 +1365,16 @@ namespace freemem
 		{
 			layer.NULLState();
 			layer.Init(8);
+			for(int i=0;i<layer.maxsize;++i){
+				layer[i] == nullptr;
+			}
 			//watch("tempFM init", 0);
 		}
 
 		void release()
 		{
 			for(int i=0;i<layer.size();++i){
-				layer[i].Release();
+				layer[i]->Release();
 			}
 			layer.release();
 		}
@@ -1144,14 +1383,18 @@ namespace freemem
 		{
 			int sel_layer = fmlayer;
 			if(sel_layer < 0) sel_layer = layer.size()-1;
-			return layer[sel_layer]._New(size);
+			return layer[sel_layer]->_New(size);
 		}
 
 		void PushLayer()
 		{
-			if(layer[layer.up] == nullptr || layer.up == layer.maxsize){
-				layer.push_back(FmTempLayer());
-				layer.last().Init();
+			if(layer.up == layer.maxsize){
+				FmTempLayer* fmtl = (FmTempLayer*)globalHeapPage.Allocate_ImortalMemory(sizeof(FmTempLayer));
+				layer.push_back(fmtl);
+				for(int i=layer.up;i<layer.maxsize;++i){
+					layer[i] == nullptr;
+			    }
+				layer.last()->Init();
 			}
 			else{
 				layer.up += 1;
@@ -1160,28 +1403,73 @@ namespace freemem
 
 		void PopLayer()
 		{
-			layer.last().ClearAll();
+			layer.last()->ClearAll();
+			layer.last()->tempFM.up = -1;
 			layer.up -= 1;
 		}
-
 	};
 
 	// The storage method is classified by the size of the data.
-	
+
+	//siz : 8 + 8 + 4 + 4 + 4 + 4 = 32byte
+	struct FmFlagPage{
+		PageMeta* page;
+		void* flagData;
+		unsigned int DataCapacity = 0;
+		unsigned int BytePerLifeFlag = 1;
+		unsigned int FlagSiz = 0;
+		unsigned int Fup = 0;
+
+		void Allocate(unsigned int _DataCapacity, unsigned int _BytePerLifeFlag)
+		{
+			DataCapacity = _DataCapacity;
+			BytePerLifeFlag = _BytePerLifeFlag;
+			FlagSiz = DataCapacity / 8*BytePerLifeFlag;
+			page = (PageMeta*)globalHeapPage.Allocate();
+			flagData = (void*)globalHeapPage.Allocate_ImortalMemory(FlagSiz);
+			Fup = 0;
+		}
+
+		void *_New(unsigned int size)
+		{
+			void *ptr = page->PageData + Fup;
+			Fup += size;
+			if (Fup >= SMALL_PAGE_SIZE)
+			{
+				return nullptr;
+			}
+			return ptr;
+		}
+
+		bool _Delete(void* ptr, unsigned int size){
+			
+		}
+
+		void ClearAll()
+		{
+			Fup = 0;
+
+		}
+	}
+
+	struct FmFlagLayer{
+
+	}
+
+	#define MAX_THREAD_COUNT_DIV8 4
+	//max thread count is 32.
 	class FM_System0
 	{
 	  public:
-		// static constexpr int midminsize = 40; //x32
-		unsigned int threadID_update = 0;
-		static constexpr int midminsize = 72;	// x64
-		unsigned int tempSize = 0;
-		unsigned int sshd_Size = 0;
-		unsigned int mshd_Size = 0;
-		unsigned int bshd_Size = 0;
-		int fm1_sizetable[128] = { };
+		byte8 threadID_allocater[MAX_THREAD_COUNT_DIV8] = {};
+		// 1 - unallocated | 0 - allocated
 
-		vecarr < std::thread::id > thread_idarr;
-		vecarr < PageMeta * > HeapPageMetaArr;
+		//static constexpr int midminsize = 72;	// x64
+		//int fm1_sizetable[128] = { };
+		ArrGraph<unsigned int, unsigned int> * fm1_sizetable;
+
+		//vecarr < std::thread::id > thread_idarr;
+		//vecarr < PageMeta * > HeapPageMetaArr;
 		vecarr < TempStack * > tempStack;
 		vecarr < vecarr < FM_Model1 * >*>SmallSize_HeapDebugFM;
 		// 1 ~ midminsize byte
@@ -1200,41 +1488,62 @@ namespace freemem
 
 		}
 
+		ArrGraph<unsigned int, unsigned int> *CreateFm1SizeTable()
+		{
+			ArrGraph<unsigned int, unsigned int> *sizeGraph = (ArrGraph<unsigned int, unsigned int> *)globalHeapPage.Allocate_ImortalMemory(sizeof(ArrGraph<unsigned int, unsigned int>));
+			sizeGraph->Init(1, 4096);
+			int sizearr[13] = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096};
+			range<unsigned int, unsigned int> currange;
+			for (int i = 1; i < 4096; ++i)
+			{
+				int res[13] = {};
+				for (int k = 0; k < 13; ++k)
+				{
+					res[k] = getcost(i, sizearr[k]);
+				}
+				int mini = 0;
+				int min = minarr(13, res, &mini);
+				// cout << i << "\t" << sizearr[mini] << " : \t" << (float)res[mini] / 8.0f << "(" << res[mini] << ")\t" << "additional bit : " << res[mini] - i * 8 << endl;
+
+				if (currange.value == sizearr[mini])
+				{
+					continue;
+				}
+				else
+				{
+					currange.end = i - 1;
+					sizeGraph->push_range(currange);
+					currange.end = 0;
+					currange.value = sizearr[mini];
+				}
+			}
+
+			currange.end = 4096;
+			sizeGraph->push_range(currange);
+			sizeGraph->Compile();
+			// sizeGraph->print_state();
+			return sizeGraph;
+		}
+
 		void SetHeapData(uint32_t temp, uint32_t sshd, uint32_t mshd, uint32_t bshd)
 		{
-			threadID_update = 0;
-			FILE *fp = fopen("fm1_sizetable.bin", "rb");
-			for (int i = 1; i < 128; ++i)
-			{
-				int a = (int)fgetc(fp);
-				int l = log2(a);
-				fm1_sizetable[i] = l;
+			for(int i=0;i<MAX_THREAD_COUNT_DIV8;++i){
+				threadID_allocater[i] = 255;
 			}
-			fclose(fp);
-
-			tempSize = temp;
-			sshd_Size = sshd;
-			mshd_Size = mshd;
-			bshd_Size = bshd;
-
-			TempFM.NULLState();
-			TempFM.Init(2, false);
-			FM_Model0 *tempFM = new FM_Model0(new byte8[tempSize], tempSize);
-			TempFM.push_back(tempFM);
-
+			
 			tempStack.NULLState();
-			tempStack.Init(16, false);
-			for (int i = 0; i < 8; ++i)
+			tempStack.Init(MAX_THREAD_COUNT_DIV8*8);
+			for (int i = 0; i < MAX_THREAD_COUNT_DIV8*8; ++i)
 			{
 				TempStack *ts = new TempStack();
 				ts->init();
 				tempStack.push_back(ts);
 			}
-			thread_idarr.NULLState();
-			thread_idarr.Init(16, false);
+
+			fm1_sizetable = CreateFm1SizeTable();
 
 			SmallSize_HeapDebugFM.NULLState();
-			SmallSize_HeapDebugFM.Init(2, false);
+			SmallSize_HeapDebugFM.Init(2);
 			for (int i = 0; i < 8; ++i)
 			{
 				FM_Model1 *sshdFM = new FM_Model1();
@@ -1248,68 +1557,37 @@ namespace freemem
 			}
 
 			MidiumSize_HeapDebugFM.NULLState();
-			MidiumSize_HeapDebugFM.Init(2, false);
+			MidiumSize_HeapDebugFM.Init(2);
 			FM_Model2 *mshdFM = new FM_Model2();
 			mshdFM->SetHeapData(new byte8[mshd], mshd, 1);
 			MidiumSize_HeapDebugFM.push_back(mshdFM);
 
 			BigSize_HeapDebugFM.NULLState();
-			BigSize_HeapDebugFM.Init(2, false);
+			BigSize_HeapDebugFM.Init(2);
 			FM_Model2 *bshdFM = new FM_Model2();
 			bshdFM->SetHeapData(new byte8[bshd], bshd, 2);
 			BigSize_HeapDebugFM.push_back(bshdFM);
 		}
 
-		void thread_tm_push()
+		void allocate_thread_fmTempMem()
 		{
-			std::thread::id tid = std::this_thread::get_id();
-			thread_idarr.push_back(tid);
-		}
-
-		void thread_tm_arrange()
-		{
-			for (int i = 0; i < thread_idarr.size(); ++i)
-			{
-				for (int k = i + 1; k < thread_idarr.size(); ++k)
-				{
-					if (thread_idarr[i] > thread_idarr[k])
-					{
-						std::thread::id a = thread_idarr[i];
-						thread_idarr[i] = thread_idarr[k];
-						thread_idarr[k] = a;
+			for(int i=0;i<MAX_THREAD_COUNT_DIV8;++i){
+				if(threadID_allocater[i] != 0){
+					for(int k=0;k<8;++k){
+						if(threadID_allocater[i] & (1 << k)){
+							threadID_allocater[i] |= (1 << k);
+							threadID = i*8 + k;
+							return;
+						}
 					}
 				}
 			}
 		}
 
-		void thread_tm_clear()
-		{
-			thread_idarr.up = 0;
-		}
-
-		int get_threadid(std::thread::id stdid)
-		{
-			int delta = thread_idarr.size() / 4;
-			int piv = thread_idarr.size() / 2;
-			while (delta > 0)
-			{
-				if (thread_idarr[piv] > stdid)
-				{
-					piv += delta;
-					delta /= 2;
-				}
-				else if (thread_idarr[piv] < stdid)
-				{
-					piv -= delta;
-					delta /= 2;
-				}
-				else
-				{
-					return piv;
-				}
-			}
-
-			return 0;
+		void free_thread_fmTempMem(){
+			unsigned int i = threadID / 8;
+			unsigned int k = threadID % 8;
+			threadID_allocater[i] &= ~(1<<k);
 		}
 
 		void dbg_fm1_lifecheck()
@@ -1395,31 +1673,16 @@ namespace freemem
 			tempStack[get_threadid(std::this_thread::get_id())]->PopLayer();
 		}
 
-		byte8 *_tempNew(unsigned int byteSiz, int fmlayer = -1)
+		void* _tempNew(unsigned int byteSiz, int fmlayer = -1)
 		{
-			return tempStack[get_threadid(std::this_thread::get_id())]->_New(byteSiz, fmlayer);
+			return tempStack[threadID]->_New(byteSiz, fmlayer);
 		}
 
-		byte8 *_New(unsigned int byteSiz, bool isHeapDebug, int fmlayer = -1)
+		void *_New(unsigned int byteSiz, bool isHeapDebug, int fmlayer = -1)
 		{
 			if (isHeapDebug == false)
 			{
-				return _tempNew(byteSiz, fmlayer);
-				/*
-				for (int i = 0; i < (int)TempFM.size(); ++i)
-				{
-					byte8 *ptr = TempFM[i]->_New(byteSiz);
-					if (ptr != nullptr)
-					{
-						return ptr;
-					}
-				}
-
-				FM_Model0 *tempFM = new FM_Model0(new byte8[tempSize], tempSize);
-				TempFM.push_back(tempFM);
-				byte8 *ptr = TempFM[TempFM.size() - 1]->_New(byteSiz);
-				return ptr;
-				*/
+				return tempStack[threadID]->_New(byteSiz, fmlayer);
 			}
 			else
 			{
