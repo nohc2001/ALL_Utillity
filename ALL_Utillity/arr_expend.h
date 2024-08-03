@@ -342,29 +342,25 @@ class lwstr
 	}
 };
 
-
+//siz : 16 byte
 template < typename T > class vecarr
 {
   public:
 	T * Arr;
 	size_t maxsize = 0;
 	int up = 0;
-	bool islocal = true;
+	//bool islocal = true;
 
 	vecarr()
 	{
 		Arr = nullptr;
 		maxsize = 0;
 		up = 0;
-		islocal = true;
+		//islocal = true;
 	}
 
-	virtual ~ vecarr()
+	~vecarr()
 	{
-		if(islocal){
-			delete[]Arr;
-			Arr = nullptr;
-		}
 	}
 
 	void NULLState()
@@ -374,7 +370,7 @@ template < typename T > class vecarr
 		up = 0;
 	}
 
-	void Init(size_t siz, bool local)
+	void Init(size_t siz)
 	{
 		T *newArr = new T[siz];
 		if (Arr != nullptr)
@@ -387,8 +383,7 @@ template < typename T > class vecarr
 			delete[]Arr;
 			Arr = nullptr;
 		}
-		
-		islocal = local;
+
 		Arr = newArr;
 		maxsize = siz;
 	}
@@ -412,7 +407,7 @@ template < typename T > class vecarr
 		}
 		else
 		{
-			Init(maxsize * 2 + 1, islocal);
+			Init(maxsize * 2 + 1);
 			Arr[up] = value;
 			up += 1;
 		}
@@ -474,7 +469,6 @@ template < typename T > class vecarr
 			delete[]Arr;
 		Arr = nullptr;
 		up = 0;
-		islocal = false;
 	}
 };
 #endif

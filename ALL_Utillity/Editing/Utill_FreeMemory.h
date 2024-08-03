@@ -35,6 +35,8 @@ typedef int vsi256 __attribute__ ((vector_size (32)));
 7. use TLS to thread sperate temp memory.
 8. there is no class only struct with functions.
 9. vecarr to heap page mem fmvecarr..
+10. only one function call.
+11. delete islocal. -> temp memory replace this.
 */
 
 #define SMALL_PAGE_SIZE 4096
@@ -1055,9 +1057,9 @@ namespace freemem
 
 		void Init(){
 			large.NULLState();
-			large.Init(8, false);
+			large.Init(8);
 			tempFM.NULLState();
-			tempFM.Init(8, false);
+			tempFM.Init(8);
 		}
 
 		void Release(){
@@ -1070,6 +1072,19 @@ namespace freemem
 				free(large[i].ptr);
 			}
 			large.release();
+		}
+
+		void ClearAll(){
+			for(int i=0;i<tempFM.size();++i){
+				tempFM[i]->Fup = 0;
+			}
+
+			for(int i=0;i<large.size();++i){
+				free(large[i].ptr);
+			}
+
+			tempFM.up = 0;
+			large.up = 0;
 		}
 
 		void* _New(unsigned int size){
@@ -1085,9 +1100,10 @@ namespace freemem
 						return tempFM[i]->_New(size);
 					}
 				}
-				fm0->SetHeapData(new byte8[tempPageSize], tempPageSize);
-				tm->push_back(fm0);
-				return tm->last()->_New(size);
+				
+				PageMeta* pm = (PageMeta*)globalHeapPage.Allocate_PageMeta();
+				tempFM.push_back(pm);
+				return tempFM.last()->_New(size);
 			}
 			else
 			{
@@ -1100,7 +1116,7 @@ namespace freemem
 		}
 	};
 
-	atomic<unsigned int> threadID_update;
+	
 	thread_local unsigned int threadID;
 	struct TempStack
 	{
@@ -1111,124 +1127,41 @@ namespace freemem
 
 		void init()
 		{
-			large.NULLState();
-			large.Init(10, false);
-			tempFM.NULLState();
-			tempFM.Init(10, false);
+			layer.NULLState();
+			layer.Init(8);
 			//watch("tempFM init", 0);
 		}
 
 		void release()
 		{
-			for (int i = 0; i < tempFM.size(); ++i)
-			{
-				for (int k = 0; k < tempFM[i]->size(); ++k)
-				{
-					tempFM[i]->at(k)->ClearAll();
-					delete tempFM[i]->at(k);
-				}
-				tempFM[i]->release();
+			for(int i=0;i<layer.size();++i){
+				layer[i].Release();
 			}
-			tempFM.release();
-
-			for (int i = 0; i < large.size(); ++i)
-			{
-				for (int k = 0; k < large[i]->size(); ++k)
-				{
-					delete[](byte8 *) large[i]->at(k).ptr;
-				}
-				large[i]->release();
-			}
-			large.release();
+			layer.release();
 		}
 
-		byte8 *_New(unsigned int size, int fmlayer = -1)
+		void *_New(unsigned int size, int fmlayer = -1)
 		{
-			vecarr<FM_Model0*>* tm;
-			vecarr<large_alloc>* larr;
-
-			if (size <= tempPageSize)
-			{
-				if(fmlayer < 0 || fmlayer >= tempFM.up) tm = tempFM.last();
-				else tm = tempFM.at(fmlayer);
-				unsigned int tsize = tm->size();
-
-				for (int i = 0; i < tsize; ++i)
-				{
-					//watch("i", i);
-					int remain = tempPageSize - tm->at(i)->Fup;
-					if (remain >= size)
-					{
-						return tm->at(i)->_New(size);
-					}
-				}
-
-				FM_Model0 *fm0 = new FM_Model0();
-				fm0->SetHeapData(new byte8[tempPageSize], tempPageSize);
-				tm->push_back(fm0);
-				return tm->last()->_New(size);
-			}
-			else
-			{
-				if(fmlayer < 0 || fmlayer >= large.up) larr = large.last();
-				else larr = large.at(fmlayer);
-				large_alloc la;
-				la.ptr = (int *)new byte8[size];
-				la.size = size;
-				larr->push_back(la);
-				return reinterpret_cast < byte8 * >(la.ptr);
-			}
+			int sel_layer = fmlayer;
+			if(sel_layer < 0) sel_layer = layer.size()-1;
+			return layer[sel_layer]._New(size);
 		}
 
 		void PushLayer()
 		{
-			if (tempFM[tempFM.up] == nullptr || tempFM.up == tempFM.maxsize)
-			{
-				vecarr < FM_Model0 * >* fmv = new vecarr < FM_Model0 * >();
-				fmv->NULLState();
-				fmv->Init(8, false);
-				FM_Model0* fm0 = new FM_Model0();
-				fm0->SetHeapData(new byte8[tempPageSize], tempPageSize);
-				fmv->push_back(fm0);
-				tempFM.push_back(fmv);
-				//watch("tempfm push", 0);
-			}
-			else
-			{
-				tempFM.up += 1;
-			}
-
-			if(large[large.up] == nullptr || large.up == large.maxsize){
-				large.push_back(new vecarr < large_alloc > ());
-				large.last()->NULLState();
-				large.last()->Init(8, false);
+			if(layer[layer.up] == nullptr || layer.up == layer.maxsize){
+				layer.push_back(FmTempLayer());
+				layer.last().Init();
 			}
 			else{
-				large.up += 1;
+				layer.up += 1;
 			}
 		}
 
 		void PopLayer()
 		{
-			for (int i = 0; i < tempFM.last()->size(); ++i)
-			{
-				tempFM.last()->at(i)->Fup = 0;
-			}
-			tempFM.up -= 1;
-
-			if (large.last()->size() > 0)
-			{
-				for (int i = 0; i < large.last()->size(); ++i)
-				{
-					if(large.last()->at(i).ptr != nullptr){
-						delete[](byte8 *) large.last()->at(i).ptr;
-						large.last()->at(i).ptr = nullptr;
-					}
-				}
-				//large.last()->release();
-				large.last()->up = 0;
-			}
-			large.up -= 1;
+			layer.last().ClearAll();
+			layer.up -= 1;
 		}
 
 	};
@@ -1239,6 +1172,7 @@ namespace freemem
 	{
 	  public:
 		// static constexpr int midminsize = 40; //x32
+		unsigned int threadID_update = 0;
 		static constexpr int midminsize = 72;	// x64
 		unsigned int tempSize = 0;
 		unsigned int sshd_Size = 0;
@@ -1268,6 +1202,7 @@ namespace freemem
 
 		void SetHeapData(uint32_t temp, uint32_t sshd, uint32_t mshd, uint32_t bshd)
 		{
+			threadID_update = 0;
 			FILE *fp = fopen("fm1_sizetable.bin", "rb");
 			for (int i = 1; i < 128; ++i)
 			{
