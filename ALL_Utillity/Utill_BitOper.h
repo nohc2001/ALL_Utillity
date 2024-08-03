@@ -10,6 +10,7 @@ typedef unsigned long long ui64;
 typedef unsigned int vui128 __attribute__((vector_size(16)));
 typedef unsigned int vui256 __attribute__((vector_size(32)));
 typedef unsigned int vui512 __attribute__((vector_size(64)));
+typedef unsigned long long vul512 __attribute__((vector_size(64)));
 struct page4096{
         unsigned char data[4096] = {};
 };
@@ -409,58 +410,209 @@ ui32 count1bit_page(page4096* source, page4096* dest){
 // 5-3 counting front0bit
 //--------------------------------------------------------------
 
+constexpr ui8 count_front0_4bit[16] = {4, 3, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0};
+
 inline ui32 count_front0bit(ui8 x){
-        ui32 casev = !!x * (1 + ((!!(x>>4))<<1) + (!!(x>>6)));
-        ui32 n=1;
-        switch(casev){
-                case 0:
-                        return 8;
-                case 1: // 40 60
-                        break;
-                case 4: // 41 61
-                        n+=4; x <<= 4;
-                case 2: // 40 61
-                        n+=2; x <<= 2;
-                        break;
-                case 3: // 41 60
-                        n+=4; x <<= 4;
-                        break;
-        }
-        n = n - (x>>7);
+        ui32 n = count_front0_4bit[x & 15];
+        n += !(n-4) * count_front0_4bit[x >> 4];
         return n;
 }
 
 inline ui32 count_front0bit(ui16 x){
-        ui32 casev = !!x * (1 + ((!!(x>>8))<<2) + (!!(x>>12) << 1) + (!!(x>>14)));
-        ui32 n=1;
-        switch(casev){
-                case 0:
-                        return 16;
-                case 1: // 8-0 12-0 14-0
-                        break;
-                case 4: // 8-0 12-1 14-1
-                        n+=4; x <<= 4;
-                case 2: // 8-0 12-1 14-0
-                        n+=2; x <<= 2;
-                        break;
-                case 3: // 8-0 12-1 14-0
-                        n+=4; x <<= 4;
-                        break;
-                case 5: // 8-1 12-0 14-0
-                        n+=8; x <<= 8;
-                        break;
-                case 8: // 8-1 12-1 14-1
-                        n+=8; x <<= 8;
-                        n+=4; x <<= 4;
-                case 6: // 8-1 12-1 14-0
-                        n+=2; x <<= 2;
-                        break;
-                case 7: // 8-1 12-1 14-0
-                        n+=8; x <<= 8;
-                        break;
-        }
-        n = n - (x>>15);
+        ui32 n = count_front0_4bit[x & 15];
+        x >>=4;
+        ui32 n0 = count_front0_4bit[x & 15];
+        n += !(n-4) * n0;
+        x >>=4;
+        ui32 n1 = count_front0_4bit[x & 15];
+        n += !(n0-4) * n1;
+        x >>=4;
+        n0 = count_front0_4bit[x];
+        n += !(n1-4) * n0;
         return n;
 }
 
+//opnum graph [2 3 4 5 6 7 7 6 4 3 2 1]
+inline ui32 count_front0bit(ui32 x){
+        //step 1 (2)
+        ui32 x1 = x & 15;
+        x >>= 4;
+        //step 2 (3)
+        ui32 n = count_front0_4bit[x1];
+        ui32 x2 = x & 15;
+        x >>= 4;
+        //step3 (4)
+        ui32 n1 = n-4;
+        ui32 a = count_front0_4bit[x2];
+        x1 = x & 15;
+        x >>= 4;
+        //step4 (5)
+        n1 = !n1;
+        ui32 a1 = a - 4;
+        ui32 b = count_front0_4bit[x1];
+        x2 = x & 15;
+        x >>= 4;
+        //step5 (6)
+        n1 *= a;
+        a1 = !a1;
+        ui32 b1 = b - 4;
+        a = count_front0_4bit[x2];
+        x1 = x & 15;
+        x >>= 4;
+        //step6 (7)
+        n1 += n;
+        a1 *= b;
+        b1 = !b1;
+        ui32 a2 = a-4;
+        b = count_front0_4bit[x1];
+        x2 = x & 15;
+        x >>= 4;
+        //step7 (7)
+        n1 += a1;
+        b1 *= a;
+        a2 = !a2;
+        ui32 b2 = b - 4;
+        a1 = count_front0_4bit[x2];
+        x1 = x & 15;
+        x >>= 4;
+        //step8 (6)
+        n1 += b1;
+        a2 *= b;
+        b2 = !b2;
+        a = a1 - 4;
+        ui32 b3 = count_front0_4bit[x1];
+        ui32 a3 = count_front0_4bit[x];
+        //step9 (4)
+        n1 += a2;
+        b2 *= a1;
+        a = !a;
+        b1 = b3 - 4;
+        //step10 (3)
+        n1 += b2;
+        a *= b3;
+        b1 = !b1;
+        //step11 (2)
+        n1 += a;
+        b1 *= a3;
+        //step12 (1)
+        n1 += b1;
+        return n1;
+}
+
+// hmm i dont know
+/*
+
+struct count_front0bit_context4{
+        vui256 x;
+        vui256 x1;
+        vui256 x2;
+        vui256 a;
+        vui256 a1;
+        vui256 a2;
+        vui256 a3;
+        vui256 b;
+        vui256 b1;
+        vui256 b2;
+        vui256 b3;
+        vui256 n;
+        vui256 n1;
+};
+ui32 count_front0bit_page(page4096* source, page4096* dest){
+        vui256* vs = (vui256*)source;
+        vui256* vd = (vui256*)dest;
+        count_front0bit_context4 cxt[34];
+        for (int i = 0; i < 32; ++i)
+        {
+                // step 1 (2)
+                cxt[i].x1 = *vs & 15;
+                cxt[i].x = *vs >> 4;
+                // step 2 (3)
+                cxt[i].n = *(count_front0_4bit + cxt[i].x1);
+                cxt[i].x2 = cxt[i].x & 15;
+                cxt[i].x >>= 4;
+                // step3 (4)
+                cxt[i].n1 = cxt[i].n - 4;
+                cxt[i].a = count_front0_4bit[cxt[i].x2];
+                cxt[i].x1 = cxt[i].x & 15;
+                cxt[i].x >>= 4;
+                // step4 (5)
+                cxt[i].n1 = !cxt[i].n1;
+                cxt[i].a1 = cxt[i].a - 4;
+                cxt[i].b = count_front0_4bit[cxt[i].x1];
+                cxt[i].x2 = cxt[i].x & 15;
+                cxt[i].x >>= 4;
+                // step5 (6)
+                cxt[i].n1 *= cxt[i].a;
+                cxt[i].a1 = !cxt[i].a1;
+                cxt[i].b1 = cxt[i].b - 4;
+                cxt[i].a = count_front0_4bit[cxt[i].x2];
+                cxt[i].x1 = cxt[i].x & 15;
+                cxt[i].x >>= 4;
+                // step6 (7)
+                cxt[i].n1 += cxt[i].n;
+                cxt[i].a1 *= cxt[i].b;
+                cxt[i].b1 = !cxt[i].b1;
+                cxt[i].a2 = cxt[i].a - 4;
+                cxt[i].b = count_front0_4bit[cxt[i].x1];
+                cxt[i].x2 = cxt[i].x & 15;
+                cxt[i].x >>= 4;
+                // step7 (7)
+                cxt[i].n1 += cxt[i].a1;
+                cxt[i].b1 *= cxt[i].a;
+                cxt[i].a2 = !cxt[i].a2;
+                cxt[i].b2 = cxt[i].b - 4;
+                cxt[i].a1 = count_front0_4bit[cxt[i].x2];
+                cxt[i].x1 = cxt[i].x & 15;
+                cxt[i].x >>= 4;
+                // step8 (6)
+                cxt[i].n1 += cxt[i].b1;
+                cxt[i].a2 *= cxt[i].b;
+                cxt[i].b2 = !cxt[i].b2;
+                cxt[i].a = cxt[i].a1 - 4;
+                cxt[i].b3 = count_front0_4bit[cxt[i].x1];
+                cxt[i].a3 = count_front0_4bit[cxt[i].x];
+                // step9 (4)
+                cxt[i].n1 += cxt[i].a2;
+                cxt[i].b2 *= cxt[i].a1;
+                cxt[i].a = !cxt[i].a;
+                cxt[i].b1 = cxt[i].b3 - 4;
+                // step10 (3)
+                cxt[i].n1 += cxt[i].b2;
+                cxt[i].a *= cxt[i].b3;
+                cxt[i].b1 = !cxt[i].b1;
+                // step11 (2)
+                cxt[i].n1 += cxt[i].a;
+                cxt[i].b1 *= cxt[i].a3;
+                // step12 (1)
+                cxt[i].n1 += cxt[i].b1;
+        }
+}
+*/
+
+//--------------------------------------------------------------
+// 6-3 seek the specific 1 bit string
+//--------------------------------------------------------------
+
+inline ui32 find_specific_str1(ui32 x, int n){
+        ui32 k = 1;
+        ui32 np = n+1;
+        k += k << np;
+        np <<= 1;
+        k += k << np;
+        np <<= 1;
+        k += k << np;
+        np <<= 1;
+        k += k << np;
+
+        for(int i=0;i<n;++i){
+                x = x & k;
+                k <<= 1;
+        }
+
+        if(x == ~0){
+                
+        }
+        else{
+        }
+}
 #endif
