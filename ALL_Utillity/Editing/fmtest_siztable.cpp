@@ -202,7 +202,27 @@ int minarr(int siz, int* arr, int* indexout){
 	return min;
 }
 
+constexpr unsigned char rev4bit[16] = {0, 8, 4, 12, 2, 10, 6, 14, 1, 9, 5, 13, 3, 11, 6, 15};
+unsigned char rev(unsigned char x){
+	unsigned char r = 0;
+	r = x & 0x0F;
+	r = rev4bit[r];
+	r = r << 4;
+	r = r | (rev4bit[(x>>4) & 0x0F]);
+	return r;
+}
+
 int main(){
+	for(int i=0;i<256;++i){
+		unsigned char c = i;
+		c = rev(c);
+		cout << ", " << (unsigned int)c;
+	}
+	cout << endl;
+	return 0;
+}
+/*
+{
     ArrGraph<unsigned int, unsigned int> sizeGraph;
     sizeGraph.Init(1, 4096);
 	int sizearr[13] = {1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096};
@@ -226,6 +246,7 @@ int main(){
             currange.value = sizearr[mini];
         }
 	}
+	
 
     currange.end = 4096;
     sizeGraph.push_range(currange);
@@ -233,3 +254,4 @@ int main(){
     sizeGraph.print_state();
 	return 0;
 }
+*/
