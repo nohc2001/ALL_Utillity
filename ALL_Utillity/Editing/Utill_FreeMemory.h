@@ -1429,8 +1429,8 @@ namespace freemem
 
 		inline void SetlcenData(unsigned int sindex, byte8 data){
 			byte8* lcenarr = (byte8*)LCENData;
-			byte8 c = (sindex+1) & 1;
-			lcenarr[sindex>>1] &= 0xF0 >> (c<<2);
+			byte8 c = sindex & 1;
+			lcenarr[sindex>>1] &= 0x0F << (c<<2);
 			lcenarr[sindex>>1] |= data << 4 * c;
 		}
 
@@ -1467,13 +1467,13 @@ namespace freemem
 				b = size;
 				b1 = ((1 << (b+1)) - 1) << (16 - b - start);
 				FlagData[flagbytePos] |= b1;
-				lcenarr[flagbytePos>>1] &= (0x0F & ((b-size)<<4)) << ((flagbytePos & 1)<<2);
+				SetlcenData(flagbytePos, size-b);
 				return;
 			}
 			else{
 				b1 = ((1 << (b+1)) - 1) << (16 - b - start);
 				FlagData[flagbytePos] |= b1;
-				lcenarr[flagbytePos>>1] &= (0x0F & (b-size)) << ((flagbytePos & 1)<<2);
+				SetlcenData(flagbytePos, 0);
 			}
 
 			flagbytePos += 1;
@@ -1488,10 +1488,14 @@ namespace freemem
 			}
 			b1 = ((1 << (size + 1)) - 1) << (16 - size);
 			FlagData[flagbytePos] |= b1;
-
+			SetlcenData(flagbytePos, _tzcnt_u16(FlagData[flagbytePos]));
 		}
 
-		void *_New(int size)
+		inline void OffFlags(unsigned int start, int size){
+			
+		}
+
+		void *_saveNew(int size)
 		{
 			void *ptr = page->PageData + Fup;
 			unsigned int preFup = Fup;
@@ -1499,18 +1503,67 @@ namespace freemem
 			if (Fup >= SMALL_PAGE_SIZE)
 			{
 				Fup -= size;
-				//return nullptr;
-				//Save Mode
+
+				//Save Mode1 ()
+				if(size < (16<<GetBitPerLifeFlag_pow2()))
+				{
+					byte8* lcenarr = (byte8*)LCENData;
+					ui32 sd8 = size >> 3;
+					ui32 flagmem_cap = DataCapacity / GetBitPerLifeFlag();
+					for(int i=0;i<flagmem_cap >> 2;++i){
+						ui32 rest = lcenarr[i] & 0x0F;
+						if(rest >= sd8){
+							ui32 index = i<<1;
+							index = GetBitPerLifeFlag() * (index << 1) - rest;
+							void *ptr = page->PageData + rest;
+							PushFlags(index, size);
+							return ptr;
+						}
+						rest = (lcenarr[i] & 0xF0) >> 4;
+						if(rest >= sd8){
+							ui32 index = i<<1+1;
+							index = GetBitPerLifeFlag() * (index << 1) - rest;
+							void *ptr = page->PageData + rest;
+							PushFlags(index, size);
+							return ptr;
+						}
+					}
+
+					//SaveMode2
+					return nullptr;
+				}
+				else{
+					//Too high size.. (not fit in LC)
+					return nullptr;
+				}
 			}
 			//Fast Mode
 			//change flag
 			PushFlags(preFup, size);
+			return ptr;
+		}
 
+		void *_fastNew(int size)
+		{
+			void *ptr = page->PageData + Fup;
+			unsigned int preFup = Fup;
+			Fup += size;
+			if (Fup >= SMALL_PAGE_SIZE)
+			{
+				Fup -= size;
+				return nullptr;
+			}
+			//Fast Mode
+			//change flag
+			PushFlags(preFup, size);
 			return ptr;
 		}
 
 		bool _Delete(void* ptr, unsigned int size){
-			
+			if(page->PageData > ptr || ptr + size > page->PageData + Fup) return false;
+
+			int index = (byte8*)ptr - (byte8*)page->PageData;
+
 		}
 
 		void ClearAll()
