@@ -6,6 +6,7 @@
 #include <fstream>
 #include "arr_expend.h"
 #include <map>
+#include <x86intrin.h>
 using namespace std;
 typedef unsigned char byte8;
 
@@ -767,10 +768,6 @@ namespace freemem
 				}
 				else
 				{
-					if (sbad <= 49 && 49 <= ebad)
-					{
-						cout << "dbg" << endl;
-					}
 					DataPtr[realDataSiz + sbad] &= invflocdata[ssad];
 					for (int i = sbad + 1; i < ebad; ++i)
 					{
@@ -1415,29 +1412,100 @@ namespace freemem
 	struct FmFlagPage{
 		PageMeta* page;
 		void* flagData;
-		unsigned int DataCapacity = 0;
-		unsigned int BytePerLifeFlag = 1;
-		unsigned int FlagSiz = 0;
+		void* LCENData; // life check flag End 0 flag string Num(len) 2byte->4bit 4byte->1byte
+		//ex> 0b0111010011000011010000 => 4
+
+		static constexpr unsigned int DataCapacity = 4096;
+		unsigned int extradata = 0;
 		unsigned int Fup = 0;
 
-		void Allocate(unsigned int _DataCapacity, unsigned int _BytePerLifeFlag)
+		inline ui32 GetBitPerLifeFlag_pow2(){
+			return (extradata & 0x000000FF);
+		}
+
+		inline ui32 GetBitPerLifeFlag(){
+			return 1 << (extradata & 0x000000FF);
+		}
+
+		inline void SetlcenData(unsigned int sindex, byte8 data){
+			byte8* lcenarr = (byte8*)LCENData;
+			byte8 c = (sindex+1) & 1;
+			lcenarr[sindex>>1] &= 0xF0 >> (c<<2);
+			lcenarr[sindex>>1] |= data << 4 * c;
+		}
+
+		void Allocate(unsigned int _BytePerLifeFlag)
 		{
-			DataCapacity = _DataCapacity;
-			BytePerLifeFlag = _BytePerLifeFlag;
-			FlagSiz = DataCapacity / 8*BytePerLifeFlag;
+			//save bit per life flag
+			extradata &= 0xFFFFFF00;
+			extradata |= (ui32)(3 + log2(_BytePerLifeFlag));
+			
 			page = (PageMeta*)globalHeapPage.Allocate();
-			flagData = (void*)globalHeapPage.Allocate_ImortalMemory(FlagSiz);
+			ui32 flagmem_cap = DataCapacity / GetBitPerLifeFlag();
+			flagData = (void*)globalHeapPage.Allocate_ImortalMemory(flagmem_cap);
+			byte8* fdarr = (byte8*)flagData;
+			for(int i=0;i<flagmem_cap;++i){
+				fdarr[0] = 0;
+			}
+			LCENData = (void*)globalHeapPage.Allocate_ImortalMemory(flagmem_cap >> 2);
+			byte8* lcenarr = (byte8*)LCENData;
+			for(int i=0;i<flagmem_cap >> 2;++i){
+				lcenarr[0] = 15; //0 mean no rest space, 15 : 15 rest space or 16 rest space
+			}
 			Fup = 0;
 		}
 
-		void *_New(unsigned int size)
+		// byte position.(data)
+		inline void PushFlags(unsigned int start, int size){
+			ui32 flagbytePos = start >> 4;
+			ui16* FlagData = reinterpret_cast<ui16*>(flagData);
+			byte8* lcenarr = reinterpret_cast<byte8*>(LCENData);
+			ui16 b = _tzcnt_u16(FlagData[flagbytePos]);
+			ui16 b1;
+			if(b > size)
+			{
+				b = size;
+				b1 = ((1 << (b+1)) - 1) << (16 - b - start);
+				FlagData[flagbytePos] |= b1;
+				lcenarr[flagbytePos>>1] &= (0x0F & ((b-size)<<4)) << ((flagbytePos & 1)<<2);
+				return;
+			}
+			else{
+				b1 = ((1 << (b+1)) - 1) << (16 - b - start);
+				FlagData[flagbytePos] |= b1;
+				lcenarr[flagbytePos>>1] &= (0x0F & (b-size)) << ((flagbytePos & 1)<<2);
+			}
+
+			flagbytePos += 1;
+			size -= b;
+		LABEL_SETFLAG_START:
+			if (size >= 16)
+			{
+				size -= 16;
+				FlagData[flagbytePos] = 0xFFFF;
+				lcenarr[flagbytePos>>1] &= 0x0F << (((flagbytePos+1) & 1)<<2);
+				goto LABEL_SETFLAG_START;
+			}
+			b1 = ((1 << (size + 1)) - 1) << (16 - size);
+			FlagData[flagbytePos] |= b1;
+
+		}
+
+		void *_New(int size)
 		{
 			void *ptr = page->PageData + Fup;
+			unsigned int preFup = Fup;
 			Fup += size;
 			if (Fup >= SMALL_PAGE_SIZE)
 			{
-				return nullptr;
+				Fup -= size;
+				//return nullptr;
+				//Save Mode
 			}
+			//Fast Mode
+			//change flag
+			PushFlags(preFup, size);
+
 			return ptr;
 		}
 
