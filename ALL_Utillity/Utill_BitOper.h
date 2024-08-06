@@ -3,14 +3,49 @@
 #ifndef UTILL_BITOPER
 #define UTILL_BITOPER
 
+#ifdef __cplusplus
+//C++ Compiler"
+#else
+//This is not C++ compiler."
+#endif
+
+#ifdef __STDC__
+//Standard C compatible compiler"
+#endif
+
+#if defined (_MSC_VER)
+//This is Microsoft C/C++ compiler Ver.
+#include <xmmintrin.h> // SSE
+#include <immintrin.h> // AVX, AVX2, FMA
+#include <intrin.h>
+typedef __m128i vui128;
+typedef __m256i vui256;
+typedef __m128i vsi128;
+typedef __m256i vsi256;
+#elif defined (__TURBOC__)
+//This is Turbo C/C++ compiler Ver.
+#elif defined (__BORLANDC__)
+//This is Borland C/C++ compiler Ver.
+#elif defined (__WATCOMC__)
+//This is Watcom C/C++ compiler Ver.
+#elif defined (__IBMCPP__)
+//This is IBM Visual Age C++ compiler Ver.
+#elif defined (__GNUC__)
+//This is GNU C compiler Ver.
+#include <x86intrin.h>
+typedef unsigned int vui128 __attribute__((vector_size(16)));
+typedef unsigned int vui256 __attribute__((vector_size(32)));
+typedef int vsi128 __attribute__((vector_size(16)));
+typedef int vsi256 __attribute__((vector_size(32)));
+#else
+//This is knowwn compiler.
+#endif
+
 typedef unsigned char ui8;
 typedef unsigned short ui16;
 typedef unsigned int ui32;
 typedef unsigned long long ui64;
-typedef unsigned int vui128 __attribute__((vector_size(16)));
-typedef unsigned int vui256 __attribute__((vector_size(32)));
-typedef unsigned int vui512 __attribute__((vector_size(64)));
-typedef unsigned long long vul512 __attribute__((vector_size(64)));
+
 struct page4096
 {
 	unsigned char data[4096] = {};
@@ -360,12 +395,14 @@ struct count1bit_context4
 };
 ui32 count1bit_page(page4096 *source, page4096 *dest)
 {
+#if defined (__GNUC__)
 	constexpr unsigned int constV[5] = {0x55555555, 0x33333333, 0x0F0F0F0F, 0x00FF00FF, 0x0000FFFF};
 	count1bit_context4 cxt[64];
 	vui256 *vd = (vui256 *)dest;
 	vui256 *vs = (vui256 *)source;
 	for (int i = 0; i < 14; i += 1)
 	{
+
 		cxt[i + 14].x1 = *vs << 1;
 		cxt[i + 14].x2 = *vs & constV[0];
 		cxt[i + 13].x3 = cxt[i + 13].x1 & constV[0];
@@ -414,67 +451,35 @@ ui32 count1bit_page(page4096 *source, page4096 *dest)
 		*vd = cxt[i].x2 + cxt[i].x3;
 		vs += 1;
 	}
+#endif
 }
 
 constexpr ui8 rev8bit[256] = {0, 128, 64, 192, 32, 160, 96, 224, 16,
-															144, 80, 208, 48, 176, 96, 240, 8, 136, 72, 200, 40, 168, 104, 232,
-															24, 152, 88, 216, 56, 184, 104, 248, 4, 132, 68, 196, 36, 164, 100,
-															228, 20, 148, 84, 212, 52, 180, 100, 244, 12, 140, 76, 204, 44, 172,
-															108, 236, 28, 156, 92, 220, 60, 188, 108, 252, 2, 130, 66, 194, 34,
-															162, 98, 226, 18, 146, 82, 210, 50, 178, 98, 242, 10, 138, 74, 202,
-															42, 170, 106, 234, 26, 154, 90, 218, 58, 186, 106, 250, 6, 134, 70,
-															198, 38, 166, 102, 230, 22, 150, 86, 214, 54, 182, 102, 246, 14, 142,
-															78, 206, 46, 174, 110, 238, 30, 158, 94, 222, 62, 190, 110, 254, 1,
-															129, 65, 193, 33, 161, 97, 225, 17, 145, 81, 209, 49, 177, 97, 241,
-															9, 137, 73, 201, 41, 169, 105, 233, 25, 153, 89, 217, 57, 185, 105,
-															249, 5, 133, 69, 197, 37, 165, 101, 229, 21, 149, 85, 213, 53, 181,
-															101, 245, 13, 141, 77, 205, 45, 173, 109, 237, 29, 157, 93, 221, 61,
-															189, 109, 253, 3, 131, 67, 195, 35, 163, 99, 227, 19, 147, 83, 211,
-															51, 179, 99, 243, 11, 139, 75, 203, 43, 171, 107, 235, 27, 155, 91,
-															219, 59, 187, 107, 251, 6, 134, 70, 198, 38, 166, 102, 230, 22, 150,
-															86, 214, 54, 182, 102, 246, 15, 143, 79, 207, 47, 175, 111, 239, 31,
-															159, 95, 223, 63, 191, 111, 255};
-inline ui32 ui32_rev(ui32 x)
-{
-	/*
-	ui32 r = rev8bit[x & 255] << 24;
-	r |= rev8bit[(x >> 8) & 255] << 16;
-	r |= rev8bit[(x >> 16) & 255] << 8;
-	r |= rev8bit[(x >> 24) & 255];
-	return r;
-	step : 6
-	*/
-	ui32 x1, x2, x3, x4;
-	// step1
-	x1 = x & 255;	
-	x2 = x >> 8;
-	x3 = x >> 16;
-	x4 = x >> 24;
-	// step2
-	x1 = rev8bit[x1];
-	x2 = x2 & 255;
-	x3 = x3 & 255;
-	x4 = x4 & 255;
-	// step3;
-	x1 = x1 << 24;
-	x2 = rev8bit[x2];
-	x3 = rev8bit[x3];
-	x4 = rev8bit[x4];
-	// step4;
-	x1 |= x4;
-	x2 = x2 << 16;
-	x3 = x3 << 8;
-	// step5
-	x1 |= x2;
-	// step6
-	x1 |= x3;
-	return x1;
-}
+	144, 80, 208, 48, 176, 96, 240, 8, 136, 72, 200, 40, 168, 104, 232,
+	24, 152, 88, 216, 56, 184, 104, 248, 4, 132, 68, 196, 36, 164, 100,
+	228, 20, 148, 84, 212, 52, 180, 100, 244, 12, 140, 76, 204, 44, 172,
+	108, 236, 28, 156, 92, 220, 60, 188, 108, 252, 2, 130, 66, 194, 34,
+	162, 98, 226, 18, 146, 82, 210, 50, 178, 98, 242, 10, 138, 74, 202,
+	42, 170, 106, 234, 26, 154, 90, 218, 58, 186, 106, 250, 6, 134, 70,
+	198, 38, 166, 102, 230, 22, 150, 86, 214, 54, 182, 102, 246, 14, 142,
+	78, 206, 46, 174, 110, 238, 30, 158, 94, 222, 62, 190, 110, 254, 1,
+	129, 65, 193, 33, 161, 97, 225, 17, 145, 81, 209, 49, 177, 97, 241,
+	9, 137, 73, 201, 41, 169, 105, 233, 25, 153, 89, 217, 57, 185, 105,
+	249, 5, 133, 69, 197, 37, 165, 101, 229, 21, 149, 85, 213, 53, 181,
+	101, 245, 13, 141, 77, 205, 45, 173, 109, 237, 29, 157, 93, 221, 61,
+	189, 109, 253, 3, 131, 67, 195, 35, 163, 99, 227, 19, 147, 83, 211,
+	51, 179, 99, 243, 11, 139, 75, 203, 43, 171, 107, 235, 27, 155, 91,
+	219, 59, 187, 107, 251, 6, 134, 70, 198, 38, 166, 102, 230, 22, 150,
+	86, 214, 54, 182, 102, 246, 15, 143, 79, 207, 47, 175, 111, 239, 31,
+	159, 95, 223, 63, 191, 111, 255};
 
-ui32 ui32_pow2rev(ui32 x){
-	ui32 n = !(x & 0x0000FFFF)<<1 + !(x & 0x00FF00FF);
-	n <<= 3;
-	ui32 r = rev8bit[(x >> n) & 255] << (32-n);
+//37 cycle
+__forceinline ui32 ui32_rev(ui32 x) {
+	x = (x & 0x55555555) << 1 | (x >> 1) & 0x55555555;
+	x = (x & 0x33333333) << 2 | (x >> 2) & 0x33333333;
+	x = (x & 0x0F0F0F0F) << 4 | (x >> 4) & 0x0F0F0F0F;
+	x = (x << 24) | ((x & 0xFF00) << 8) | ((x >> 8) & 0xFF00) | (x >> 24);
+	return x;
 }
 
 //--------------------------------------------------------------

@@ -1,5 +1,32 @@
 #ifndef H_ARR_EXPEND
 #define H_ARR_EXPEND
+
+#ifdef __cplusplus
+//C++ Compiler"
+#else
+//This is not C++ compiler."
+#endif
+
+#ifdef __STDC__
+//Standard C compatible compiler"
+#endif
+
+#if defined (_MSC_VER)
+//This is Microsoft C/C++ compiler Ver.
+#elif defined (__TURBOC__)
+//This is Turbo C/C++ compiler Ver.
+#elif defined (__BORLANDC__)
+//This is Borland C/C++ compiler Ver.
+#elif defined (__WATCOMC__)
+//This is Watcom C/C++ compiler Ver.
+#elif defined (__IBMCPP__)
+//This is IBM Visual Age C++ compiler Ver.
+#elif defined (__GNUC__)
+//This is GNU C compiler Ver.
+#else
+//This is knowwn compiler.
+#endif
+
 #include <string.h>
 #include <iostream>
 using namespace std;
@@ -66,8 +93,11 @@ class lcstr
 		{
 			Init(len + 1, islocal);
 		}
-
+#if defined(__GNUC__)
 		strcpy(Arr, str);
+#elif defined (_MSC_VER)
+		strcpy_s(Arr, len, str);
+#endif
 		up = len - 1;
 	}
 
@@ -236,7 +266,11 @@ class lwstr
 			Init(len + 1, islocal);
 		}
 
+#if defined(__GNUC__)
 		wcscpy(Arr, str);
+#elif defined (_MSC_VER)
+		wcscpy_s(Arr, len, str);
+#endif
 		up = len - 1;
 	}
 

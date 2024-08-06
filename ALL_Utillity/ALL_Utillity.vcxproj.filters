@@ -16,6 +16,9 @@
     <Filter Include="메모">
       <UniqueIdentifier>{09616b6a-28bd-4f80-a0dd-808413e671e8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="헤더 파일\Editing">
+      <UniqueIdentifier>{5458f493-3c65-445c-ab06-9eea01d645b4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Interpolation.txt">
@@ -65,6 +68,15 @@
     <ClInclude Include="Utill_VirtualUnit.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Editing\arr_expend.h">
+      <Filter>헤더 파일\Editing</Filter>
+    </ClInclude>
+    <ClInclude Include="Editing\Utill_FreeMemory.h">
+      <Filter>헤더 파일\Editing</Filter>
+    </ClInclude>
+    <ClInclude Include="Utill_BitOper.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -79,5 +91,16 @@
     <ClCompile Include="Imagetest.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="Editing\fmtest.cpp">
+      <Filter>헤더 파일\Editing</Filter>
+    </ClCompile>
+    <ClCompile Include="Editing\fmtest_siztable.cpp">
+      <Filter>헤더 파일\Editing</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Editing\fmtest_siztable">
+      <Filter>헤더 파일\Editing</Filter>
+    </None>
   </ItemGroup>
 </Project>

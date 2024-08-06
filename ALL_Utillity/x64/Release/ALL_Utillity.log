@@ -1,0 +1,133 @@
+﻿  fmtest.cpp
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1,1): warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\arr_expend.h(86,11): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\arr_expend.h(164,14): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\arr_expend.h(174,14): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\arr_expend.h(258,11): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\arr_expend.h(337,14): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\arr_expend.h(347,14): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(217,23): warning C4244: '초기화 중': 'double'에서 'unsigned int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(269,3): warning C4091: 'typedef ': 변수를 선언하지 않으면 'freemem::VP' 왼쪽은 무시됩니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(822,22): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(862,13): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(876,13): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(957,16): warning C4244: '초기화 중': '__int64'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(960,16): warning C4018: '>': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(969,13): warning C4018: '>=': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1002,12): warning C4804: '<': 연산에 'bool' 형식을 사용하는 것은 안전하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1026,25): warning C4244: '초기화 중': '__int64'에서 'unsigned int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1167,17): warning C4244: '초기화 중': 'uint64_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1310,13): warning C4018: '>': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1363,24): warning C4267: '초기화 중': 'size_t'에서 'unsigned int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1364,23): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1368,17): warning C4018: '>=': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1403,14): warning C4553: '==': 식의 결과가 사용되지 않습니다. '='을(를) 의도했습니까?
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1419,46): warning C4267: '=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1429,15): warning C4553: '==': 식의 결과가 사용되지 않습니다. '='을(를) 의도했습니까?
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1484,17): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1489,17): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1528,39): warning C4244: '인수': 'unsigned short'에서 'byte8'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1550,19): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1561,1): warning C4554: '<<': 연산자 우선 순위에 오류가 있는지 확인하세요. 괄호를 사용하여 우선 순위를 명확하게 지정하세요.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1602,14): warning C4244: '초기화 중': '__int64'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1708,11): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(3193,53): warning C4267: '=': 'size_t'에서 'short'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(3205,13): warning C4018: '<=': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(3243,28): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(3253,28): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(339,28): warning C4267: '=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(339,28):
+  템플릿 인스턴스화 컨텍스트(가장 오래된 인스턴스화 컨텍스트)가
+  	D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1651,138):
+  	컴파일되는 클래스 템플릿 인스턴스화 'freemem::ArrGraph<unsigned int,unsigned int>'에 대한 참조를 확인하세요.
+  	D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(327,8):
+  	클래스 템플릿 멤버 함수 'void freemem::ArrGraph<unsigned int,unsigned int>::Compile(void)'을(를) 컴파일하는 중입니다.
+  		D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1681,22):
+  		'freemem::FM_System0::CreateFm1SizeTable'에서 'freemem::ArrGraph<unsigned int,unsigned int>::Compile'에 대한 첫 번째 참조를 확인하세요.
+  
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(404,28): warning C4267: '=': 'size_t'에서 'T'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(404,28): warning C4267:         with
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(404,28): warning C4267:         [
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(404,28): warning C4267:             T=unsigned int
+D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(404,28): warning C4267:         ]
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+  코드를 생성하고 있습니다.
+  3 of 23 functions (13.0%) were compiled, the rest were copied from previous compilation.
+    2 functions were new in current compilation
+    0 functions had inline decision re-evaluated but remain unchanged
+  코드를 생성했습니다.
+  ALL_Utillity.vcxproj -> D:\Dev\ALL_Utillity\x64\Release\ALL_Utillity.exe

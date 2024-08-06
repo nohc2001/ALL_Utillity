@@ -1,27 +1,61 @@
 #ifndef H_UTILL_FREEMEMORY
 #define H_UTILL_FREEMEMORY
+
+#ifdef __cplusplus
+//C++ Compiler"
+#else
+//This is not C++ compiler."
+#endif
+
+#ifdef __STDC__
+//Standard C compatible compiler"
+#endif
+
+#if defined (_MSC_VER)
+//This is Microsoft C/C++ compiler Ver.
+#include <xmmintrin.h> // SSE
+#include <immintrin.h> // AVX, AVX2, FMA
+#include <intrin.h>
+typedef __m128i vui128;
+typedef __m256i vui256;
+typedef __m128i vsi128;
+typedef __m256i vsi256;
+#elif defined (__TURBOC__)
+//This is Turbo C/C++ compiler Ver.
+#elif defined (__BORLANDC__)
+//This is Borland C/C++ compiler Ver.
+#elif defined (__WATCOMC__)
+//This is Watcom C/C++ compiler Ver.
+#elif defined (__IBMCPP__)
+//This is IBM Visual Age C++ compiler Ver.
+#elif defined (__GNUC__)
+//This is GNU C compiler Ver.
+#include <x86intrin.h>
+typedef unsigned int vui128 __attribute__((vector_size(16)));
+typedef unsigned int vui256 __attribute__((vector_size(32)));
+typedef int vsi128 __attribute__((vector_size(16)));
+typedef int vsi256 __attribute__((vector_size(32)));
+#else
+//This is knowwn compiler.
+#endif
+
 #include <math.h>
 #include <thread>
 #include <iostream>
 #include <fstream>
-#include "arr_expend.h"
 #include <map>
-#include <x86intrin.h>
+#include "arr_expend.h"
+
 using namespace std;
 typedef unsigned char byte8;
-
 typedef unsigned char ui8;
 typedef unsigned short ui16;
 typedef unsigned int ui32;
 typedef unsigned long long ui64;
-typedef unsigned int vui128 __attribute__((vector_size(16)));
-typedef unsigned int vui256 __attribute__((vector_size(32)));
 typedef char si8;
 typedef short si16;
 typedef int si32;
 typedef long long si64;
-typedef int vsi128 __attribute__((vector_size(16)));
-typedef int vsi256 __attribute__((vector_size(32)));
 
 // todo :
 /*
@@ -60,16 +94,16 @@ namespace freemem
 	void Init_VPTR_x86(void *obj)
 	{
 		T go = T();
-		__int32_t vp = *(__int32_t *)&go;
-		*((__int32_t *)obj) = vp;
+		ui32 vp = *(ui32*)&go;
+		*((ui32*)obj) = vp;
 	}
 
 	template <typename T>
 	void Init_VPTR_x64(void *obj)
 	{
 		T go;
-		__int64_t vp = *(__int64_t *)&go;
-		*((__int64_t *)obj) = vp;
+		ui64 vp = *(ui64*)&go;
+		*((ui64*)obj) = vp;
 	}
 
 	class FM_Model
@@ -149,9 +183,10 @@ namespace freemem
 		{
 			constexpr vui256 const_zero_vui256 = {0, 0, 0, 0, 0, 0, 0, 0};
 
-			void *sp = malloc(SMALL_PAGE_SIZE);
+			byte8 *sp = (byte8*)malloc(SMALL_PAGE_SIZE);
 
 			// init to 0
+#if defined(__GNUC__)
 			for (int i = 0; i < SMALL_PAGE_SIZE; i += 64)
 			{
 				*reinterpret_cast<vui256 *>(sp + i) = const_zero_vui256;
@@ -159,10 +194,13 @@ namespace freemem
 				*reinterpret_cast<vui256 *>(sp + i + 32) = const_zero_vui256;
 				*reinterpret_cast<vui256 *>(sp + i + 48) = const_zero_vui256;
 			}
+#elif defined (_MSC_VER)
+			
 
+#endif
 			pages.push_back(reinterpret_cast<SmallPage *>(sp));
 
-			return sp;
+			return (void*)sp;
 		}
 
 		void Release()
@@ -186,7 +224,7 @@ namespace freemem
 
 			unsigned int up = pageImortal_up[index];
 			pageImortal_up[index] += 1;
-			return lastPageImortal[index] + (up << index);
+			return (byte8*)lastPageImortal[index] + (up << index);
 		}
 	};
 
@@ -208,7 +246,7 @@ namespace freemem
 
 		void *_New(unsigned int size)
 		{
-			void *ptr = PageData + Fup;
+			void *ptr = (byte8*)PageData + Fup;
 			Fup += size;
 			if (Fup >= SMALL_PAGE_SIZE)
 			{
@@ -375,7 +413,6 @@ namespace freemem
 
 		T fx(T x)
 		{
-			static constexpr void *jumpptr[2] = {&&ISVALUE, &&ISGRAPH};
 			ArrGraph<T, V> *ag = this;
 			vecarr<VP> *g = &graph;
 			VP vp;
@@ -388,15 +425,15 @@ namespace freemem
 			index = (int)f;
 
 			vp = (*g)[index];
-			goto *jumpptr[vp.mod];
 
-		ISGRAPH:
-			ag = reinterpret_cast<ArrGraph<T, V> *>(vp.ptr);
-			g = &ag->graph;
-			goto GET_START;
-
-		ISVALUE:
-			return *reinterpret_cast<V *>(vp.ptr);
+			switch (vp.mod) {
+			case 1:
+				ag = reinterpret_cast<ArrGraph<T, V> *>(vp.ptr);
+				g = &ag->graph;
+				goto GET_START;
+			case 0:
+				return *reinterpret_cast<V*>(vp.ptr);
+			}
 		}
 
 		void print_state()
@@ -1497,7 +1534,7 @@ namespace freemem
 
 		void *_saveNew(int size)
 		{
-			void *ptr = page->PageData + Fup;
+			void *ptr = (byte8*)page->PageData + Fup;
 			unsigned int preFup = Fup;
 			Fup += size;
 			if (Fup >= SMALL_PAGE_SIZE)
@@ -1515,7 +1552,7 @@ namespace freemem
 						if(rest >= sd8){
 							ui32 index = i<<1;
 							index = GetBitPerLifeFlag() * (index << 1) - rest;
-							void *ptr = page->PageData + rest;
+							void *ptr = (byte8*)page->PageData + rest;
 							PushFlags(index, size);
 							return ptr;
 						}
@@ -1523,7 +1560,7 @@ namespace freemem
 						if(rest >= sd8){
 							ui32 index = i<<1+1;
 							index = GetBitPerLifeFlag() * (index << 1) - rest;
-							void *ptr = page->PageData + rest;
+							void *ptr = (byte8*)page->PageData + rest;
 							PushFlags(index, size);
 							return ptr;
 						}
@@ -1545,7 +1582,7 @@ namespace freemem
 
 		void *_fastNew(int size)
 		{
-			void *ptr = page->PageData + Fup;
+			void *ptr = (byte8*)page->PageData + Fup;
 			unsigned int preFup = Fup;
 			Fup += size;
 			if (Fup >= SMALL_PAGE_SIZE)
@@ -1560,7 +1597,7 @@ namespace freemem
 		}
 
 		bool _Delete(void* ptr, unsigned int size){
-			if(page->PageData > ptr || ptr + size > page->PageData + Fup) return false;
+			if(page->PageData > ptr || (byte8*)ptr + size > (byte8*)page->PageData + Fup) return false;
 
 			int index = (byte8*)ptr - (byte8*)page->PageData;
 
@@ -1571,11 +1608,11 @@ namespace freemem
 			Fup = 0;
 
 		}
-	}
+	};
 
-	struct FmFlagLayer{
+	struct FmFlagLayer {
 
-	}
+	};
 
 	#define MAX_THREAD_COUNT_DIV8 4
 	//max thread count is 32.
@@ -1669,10 +1706,10 @@ namespace freemem
 			{
 				FM_Model1 *sshdFM = new FM_Model1();
 				int n = pow(2, i);
-				sshdFM->SetHeapData(sshd_Size, 8 * n);
+				//sshdFM->SetHeapData(sshd_Size, 8 * n);
 				vecarr < FM_Model1 * >*ssfm1 = new vecarr < FM_Model1 * >();
 				ssfm1->NULLState();
-				ssfm1->Init(2, false);
+				ssfm1->Init(2);
 				ssfm1->push_back(sshdFM);
 				SmallSize_HeapDebugFM.push_back(ssfm1);
 			}
@@ -1729,69 +1766,69 @@ namespace freemem
 
 		byte8 *_fastnew(unsigned int byteSiz)
 		{
-			if (1 <= byteSiz && byteSiz <= midminsize - 1)
-			{
-				int index = fm1_sizetable[byteSiz];
-				vecarr < FM_Model1 * >*fm1 = SmallSize_HeapDebugFM[index];
-				for (int i = 0; i < (int)fm1->size(); ++i)
-				{
-					byte8 *ptr = fm1->at(i)->_fastnew(byteSiz);
-					if (ptr != nullptr)
-					{
-						return ptr;
-					}
-				}
+			//if (1 <= byteSiz && byteSiz <= midminsize - 1)
+			//{
+			//	int index = fm1_sizetable->fx(byteSiz);
+			//	vecarr < FM_Model1 * >*fm1 = SmallSize_HeapDebugFM[index];
+			//	for (int i = 0; i < (int)fm1->size(); ++i)
+			//	{
+			//		byte8 *ptr = fm1->at(i)->_fastnew(byteSiz);
+			//		if (ptr != nullptr)
+			//		{
+			//			return ptr;
+			//		}
+			//	}
 
-				FM_Model1 *sshdFM = new FM_Model1();
-				sshdFM->SetHeapData(sshd_Size, 8 * pow(2, index));
-				fm1->push_back(sshdFM);
-				byte8 *ptr = sshdFM->_fastnew(byteSiz);
-				return ptr;
-			}
-			else if (midminsize <= byteSiz && byteSiz <= 255)
-			{
-				for (int i = 0; i < (int)MidiumSize_HeapDebugFM.size(); ++i)
-				{
-					byte8 *ptr = MidiumSize_HeapDebugFM[i]->_New(byteSiz);
-					if (ptr != nullptr)
-					{
-						return ptr;
-					}
-				}
+			//	FM_Model1 *sshdFM = new FM_Model1();
+			//	sshdFM->SetHeapData(sshd_Size, 8 * pow(2, index));
+			//	fm1->push_back(sshdFM);
+			//	byte8 *ptr = sshdFM->_fastnew(byteSiz);
+			//	return ptr;
+			//}
+			//else if (midminsize <= byteSiz && byteSiz <= 255)
+			//{
+			//	for (int i = 0; i < (int)MidiumSize_HeapDebugFM.size(); ++i)
+			//	{
+			//		byte8 *ptr = MidiumSize_HeapDebugFM[i]->_New(byteSiz);
+			//		if (ptr != nullptr)
+			//		{
+			//			return ptr;
+			//		}
+			//	}
 
-				FM_Model2 *mshdFM = new FM_Model2();
-				mshdFM->SetHeapData(new byte8[mshd_Size], mshd_Size, 1);
-				MidiumSize_HeapDebugFM.push_back(mshdFM);
-				byte8 *ptr = mshdFM->_New(byteSiz);
-				return ptr;
-			}
-			else if (256 <= byteSiz && byteSiz <= 65535)
-			{
-				for (int i = 0; i < (int)BigSize_HeapDebugFM.size(); ++i)
-				{
-					byte8 *ptr = BigSize_HeapDebugFM[i]->_New(byteSiz);
-					if (ptr != nullptr)
-					{
-						return ptr;
-					}
-				}
+			//	FM_Model2 *mshdFM = new FM_Model2();
+			//	//mshdFM->SetHeapData(new byte8[mshd_Size], mshd_Size, 1);
+			//	MidiumSize_HeapDebugFM.push_back(mshdFM);
+			//	byte8 *ptr = mshdFM->_New(byteSiz);
+			//	return ptr;
+			//}
+			//else if (256 <= byteSiz && byteSiz <= 65535)
+			//{
+			//	for (int i = 0; i < (int)BigSize_HeapDebugFM.size(); ++i)
+			//	{
+			//		byte8 *ptr = BigSize_HeapDebugFM[i]->_New(byteSiz);
+			//		if (ptr != nullptr)
+			//		{
+			//			return ptr;
+			//		}
+			//	}
 
-				FM_Model2 *bshdFM = new FM_Model2();
-				bshdFM->SetHeapData(new byte8[bshd_Size], bshd_Size, 2);
-				BigSize_HeapDebugFM.push_back(bshdFM);
-				byte8 *ptr = BigSize_HeapDebugFM[BigSize_HeapDebugFM.size() - 1]->_New(byteSiz);
-				return ptr;
-			}
+			//	FM_Model2 *bshdFM = new FM_Model2();
+			//	//bshdFM->SetHeapData(new byte8[bshd_Size], bshd_Size, 2);
+			//	BigSize_HeapDebugFM.push_back(bshdFM);
+			//	byte8 *ptr = BigSize_HeapDebugFM[BigSize_HeapDebugFM.size() - 1]->_New(byteSiz);
+			//	return ptr;
+			//}
 		}
 
 		inline void _tempPushLayer()
 		{
-			tempStack[get_threadid(std::this_thread::get_id())]->PushLayer();
+			tempStack[threadID]->PushLayer();
 		}
 
 		inline void _tempPopLayer()
 		{
-			tempStack[get_threadid(std::this_thread::get_id())]->PopLayer();
+			tempStack[threadID]->PopLayer();
 		}
 
 		void* _tempNew(unsigned int byteSiz, int fmlayer = -1)
@@ -1807,9 +1844,9 @@ namespace freemem
 			}
 			else
 			{
-				if (1 <= byteSiz && byteSiz <= midminsize - 1)
+				if (1 <= byteSiz && byteSiz <= 0 - 1)
 				{
-					int index = fm1_sizetable[byteSiz];
+					int index = fm1_sizetable->fx(byteSiz);
 					vecarr < FM_Model1 * >*fm1 = SmallSize_HeapDebugFM[index];
 					for (int i = 0; i < (int)fm1->size(); ++i)
 					{
@@ -1821,12 +1858,12 @@ namespace freemem
 					}
 
 					FM_Model1 *sshdFM = new FM_Model1();
-					sshdFM->SetHeapData(sshd_Size, 8 * pow(2, index));
+					//sshdFM->SetHeapData(sshd_Size, 8 * pow(2, index));
 					fm1->push_back(sshdFM);
 					byte8 *ptr = sshdFM->_New(byteSiz);
 					return ptr;
 				}
-				else if (midminsize <= byteSiz && byteSiz <= 255)
+				else if (0 <= byteSiz && byteSiz <= 255)
 				{
 					for (int i = 0; i < (int)MidiumSize_HeapDebugFM.size(); ++i)
 					{
@@ -1838,7 +1875,7 @@ namespace freemem
 					}
 
 					FM_Model2 *mshdFM = new FM_Model2();
-					mshdFM->SetHeapData(new byte8[mshd_Size], mshd_Size, 1);
+					mshdFM->SetHeapData(new byte8[0], 0, 1);
 					MidiumSize_HeapDebugFM.push_back(mshdFM);
 					byte8 *ptr = mshdFM->_New(byteSiz);
 					return ptr;
@@ -1855,7 +1892,7 @@ namespace freemem
 					}
 
 					FM_Model2 *bshdFM = new FM_Model2();
-					bshdFM->SetHeapData(new byte8[bshd_Size], bshd_Size, 2);
+					//bshdFM->SetHeapData(new byte8[bshd_Size], bshd_Size, 2);
 					BigSize_HeapDebugFM.push_back(bshdFM);
 					byte8 *ptr =
 						BigSize_HeapDebugFM[BigSize_HeapDebugFM.size() - 1]->_New(byteSiz);
@@ -1867,9 +1904,9 @@ namespace freemem
 
 		bool _Delete(byte8 * variable, unsigned int size)
 		{
-			if (1 <= size && size <= midminsize)
+			/*if (1 <= size && size <= midminsize)
 			{
-				int index = fm1_sizetable[size];
+				int index = fm1_sizetable->fx(size);
 				vecarr < FM_Model1 * >*fm1 = SmallSize_HeapDebugFM[index];
 				for (int i = 0; i < (int)fm1->size(); ++i)
 				{
@@ -1938,7 +1975,7 @@ namespace freemem
 				}
 
 				return false;
-			}
+			}*/
 
 			return false;
 		}
@@ -1947,7 +1984,7 @@ namespace freemem
 		{
 			if (1 <= size && size <= 39)
 			{
-				int index = fm1_sizetable[size];
+				int index = fm1_sizetable->fx(size);
 				vecarr < FM_Model1 * >*fm1 = SmallSize_HeapDebugFM[index];
 				for (int i = 0; i < (int)fm1->size(); ++i)
 				{
@@ -1988,27 +2025,6 @@ namespace freemem
 			}
 
 			return false;
-		}
-
-		void Temp_ClearAll(bool resetSize)
-		{
-			if (resetSize)
-			{
-				for (int i = 0; i < (int)TempFM.size(); ++i)
-				{
-					delete TempFM[i];
-				}
-				TempFM.clear();
-				FM_Model0 *tempFM = new FM_Model0(new byte8[tempSize], tempSize);
-				TempFM.push_back(tempFM);
-			}
-			else
-			{
-				for (int i = 0; i < (int)TempFM.size(); ++i)
-				{
-					TempFM[i]->ClearAll();
-				}
-			}
 		}
 	};
 }
@@ -2069,7 +2085,7 @@ namespace freemem{
 				fmlayer = pfmlayer;
 				newArr = (T *) fm->_tempNew(sizeof(T) * siz, fmlayer);
 				if(fmlayer < 0){
-					fmlayer = fm->tempStack[fm->get_threadid(std::this_thread::get_id())]->tempFM.size()-1;
+					fmlayer = fm->tempStack[threadID]->layer.size()-1;
 				}
 			}
 			if (Arr != nullptr)
@@ -2222,7 +2238,7 @@ namespace freemem{
 			islocal = isLocal;
 			fmlayer = pfmlayer;
 			if(fmlayer < 0){
-				fmlayer = fm->tempStack[fm->get_threadid(std::this_thread::get_id())]->tempFM.size()-1;
+				fmlayer = fm->tempStack[threadID]->layer.size()-1;
 			}
 		}
 
@@ -2273,19 +2289,7 @@ namespace freemem{
 		}
 	};
 
-	typedef struct VP
-	{
-		char mod = 0;			// mod 0:value 1:ptr
-		int *ptr = nullptr;		// arrgraph ptr or T ptr
-	};
-
-	template < typename T, typename V > struct range
-	{
-		T end;
-		V value;
-	};
-
-	template < typename T, typename V > class ArrGraph
+	template < typename T, typename V > class fmArrGraph
 	{
 	  public:
 		fmvecarr < range < T, V > >* ranges;
@@ -2297,10 +2301,10 @@ namespace freemem{
 		T maxx = 0;
 		T margin = 0;
 
-		ArrGraph()
+		fmArrGraph()
 		{
 		}
-		~ ArrGraph()
+		~fmArrGraph()
 		{
 			if (islocal)
 			{
@@ -2317,7 +2321,7 @@ namespace freemem{
 			}
 		}
 
-		ArrGraph *Init(T min, T max, bool isdbg, int pfmlayer = -1)
+		fmArrGraph*Init(T min, T max, bool isdbg, int pfmlayer = -1)
 		{
 			minx = min;
 			maxx = max;
@@ -2327,7 +2331,7 @@ namespace freemem{
 			ranges->NULLState();
 			ranges->Init(2, false, true, fmlayer);
 			if(fmlayer < 0){
-				fmlayer = fm->tempStack[fm->get_threadid(std::this_thread::get_id())]->tempFM.size()-1;
+				fmlayer = fm->tempStack[threadID]->layer.size() - 1;
 			}
 			islocal = false;
 			return this;
@@ -2439,8 +2443,7 @@ namespace freemem{
 
 		V fx(T x)
 		{
-			static constexpr void *jumpptr[2] = { &&ISVALUE, &&ISGRAPH };
-			ArrGraph < T, V > *ag = this;
+			fmArrGraph < T, V > *ag = this;
 			fmvecarr < VP > *g = &graph;
 			VP vp;
 			float f = 0;
@@ -2452,15 +2455,14 @@ namespace freemem{
 			index = (int)f;
 
 			vp = (*g)[index];
-			goto *jumpptr[vp.mod];
-
-		  ISGRAPH:
-			ag = reinterpret_cast < ArrGraph < T, V > *>(vp.ptr);
-			g = &ag->graph;
-			goto GET_START;
-
-		  ISVALUE:
-			return *reinterpret_cast < V * >(vp.ptr);
+			switch (vp.mod) {
+			case 1:
+				ag = reinterpret_cast <fmArrGraph < T, V > *>(vp.ptr);
+				g = &ag->graph;
+				goto GET_START;
+			case 0:
+				return *reinterpret_cast <V*>(vp.ptr);
+			}
 		}
 
 		void print_state()
@@ -2480,7 +2482,7 @@ namespace freemem{
 				else
 				{
 					cout << "index : " << i << "] = ptr : " << endl;
-					reinterpret_cast < ArrGraph < T, V > *>(graph[i].ptr)->print_state();
+					reinterpret_cast <fmArrGraph < T, V > *>(graph[i].ptr)->print_state();
 					cout << endl;
 				}
 			}
@@ -2677,7 +2679,7 @@ namespace freemem{
 			}
 
 			if(fmlayer < 0){
-				fmlayer = fm->tempStack[fm->get_threadid(std::this_thread::get_id())]->tempFM.size() - 1;
+				fmlayer = fm->tempStack[threadID]->layer.size() - 1;
 			}
 		}
 
@@ -3186,9 +3188,9 @@ namespace freemem{
 			byte_arr_size = (bit_arr_size >> 3) + 1;
 			isdebug = isdbg;
 			fmlayer = pfmlayer;
-			Arr = fm->_New(byte_arr_size, isdebug, fmlayer);
+			Arr = (byte8*)fm->_New(byte_arr_size, isdebug, fmlayer);
 			if(fmlayer < 0){
-				fmlayer = fm->tempStack[fm->get_threadid(std::this_thread::get_id())]->tempFM.size()-1;
+				fmlayer = fm->tempStack[threadID]->layer.size() - 1;
 			}
 		}
 

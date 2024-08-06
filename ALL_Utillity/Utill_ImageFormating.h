@@ -66,7 +66,7 @@ namespace imgform {
         static freemem::FM_Model0 ImageOperateData_tempFM;
         int width = 0;
         int height = 0;
-        freemem::InfiniteArray<RGBA_pixel> ImageData;
+        freemem::fmvecarr<RGBA_pixel> ImageData;
 
         PixelImageObject() :
             width(0), height(0)
