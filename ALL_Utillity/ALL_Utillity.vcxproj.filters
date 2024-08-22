@@ -30,6 +30,9 @@
     <Text Include="텍스트.txt">
       <Filter>메모</Filter>
     </Text>
+    <Text Include="HeapDump.txt">
+      <Filter>헤더 파일\Editing</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Utill_Str.h">
@@ -77,6 +80,9 @@
     <ClInclude Include="Utill_BitOper.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Editing\Utill_Wave.h">
+      <Filter>헤더 파일\Editing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -97,10 +103,24 @@
     <ClCompile Include="Editing\fmtest_siztable.cpp">
       <Filter>헤더 파일\Editing</Filter>
     </ClCompile>
+    <ClCompile Include="Editing\opti_test.cpp">
+      <Filter>헤더 파일\Editing</Filter>
+    </ClCompile>
+    <ClCompile Include="Editing\wavetest.cpp">
+      <Filter>헤더 파일\Editing</Filter>
+    </ClCompile>
+    <ClCompile Include="Editing\optimizedAsm.cpp">
+      <Filter>헤더 파일\Editing</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Editing\fmtest_siztable">
       <Filter>헤더 파일\Editing</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="Editing\x64asm.asm">
+      <Filter>헤더 파일\Editing</Filter>
+    </CustomBuild>
   </ItemGroup>
 </Project>

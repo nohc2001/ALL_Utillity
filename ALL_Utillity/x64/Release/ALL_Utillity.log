@@ -1,133 +1,266 @@
 ﻿  fmtest.cpp
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1,1): warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1,1): warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
   (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
   
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\arr_expend.h(86,11): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\arr_expend.h(86,11): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
   (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
   
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\arr_expend.h(164,14): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\arr_expend.h(164,14): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
   (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
   
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\arr_expend.h(174,14): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\arr_expend.h(174,14): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
   (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
   
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\arr_expend.h(258,11): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\arr_expend.h(258,11): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
   (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
   
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\arr_expend.h(337,14): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\arr_expend.h(337,14): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
   (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
   
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\arr_expend.h(347,14): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\arr_expend.h(347,14): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
   (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
   
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(217,23): warning C4244: '초기화 중': 'double'에서 'unsigned int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(258,22): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
   (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
   
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(269,3): warning C4091: 'typedef ': 변수를 선언하지 않으면 'freemem::VP' 왼쪽은 무시됩니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(287,22): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
   (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
   
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(822,22): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(298,26): warning C4018: '>': signed 또는 unsigned가 일치하지 않습니다.
   (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
   
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(862,13): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(304,33): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
   (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
   
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(876,13): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(334,33): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
   (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
   
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(957,16): warning C4244: '초기화 중': '__int64'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(362,22): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
   (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
   
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(960,16): warning C4018: '>': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(372,29): warning C4018: '>=': signed 또는 unsigned가 일치하지 않습니다.
   (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
   
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(969,13): warning C4018: '>=': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(382,22): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
   (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
   
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1002,12): warning C4804: '<': 연산에 'bool' 형식을 사용하는 것은 안전하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(386,21): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
   (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
   
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1026,25): warning C4244: '초기화 중': '__int64'에서 'unsigned int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(394,22): warning C4244: '초기화 중': 'double'에서 'unsigned int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
   (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
   
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1167,17): warning C4244: '초기화 중': 'uint64_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(425,22): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
   (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
   
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1310,13): warning C4018: '>': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(595,22): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
   (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
   
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1363,24): warning C4267: '초기화 중': 'size_t'에서 'unsigned int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(599,16): warning C4018: '>=': signed 또는 unsigned가 일치하지 않습니다.
   (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
   
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1364,23): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(718,22): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
   (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
   
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1368,17): warning C4018: '>=': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(726,22): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
   (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
   
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1403,14): warning C4553: '==': 식의 결과가 사용되지 않습니다. '='을(를) 의도했습니까?
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(752,42): warning C4244: '인수': 'unsigned short'에서 'byte8'(으)로 변환하면서 데이터가 손실될 수 있습니다.
   (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
   
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1419,46): warning C4267: '=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(757,42): warning C4244: '인수': 'unsigned short'에서 'byte8'(으)로 변환하면서 데이터가 손실될 수 있습니다.
   (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
   
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1429,15): warning C4553: '==': 식의 결과가 사용되지 않습니다. '='을(를) 의도했습니까?
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(758,40): warning C4244: '인수': 'unsigned short'에서 'byte8'(으)로 변환하면서 데이터가 손실될 수 있습니다.
   (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
   
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1484,17): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(768,39): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
   (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
   
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1489,17): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(773,39): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
   (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
   
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1528,39): warning C4244: '인수': 'unsigned short'에서 'byte8'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(778,39): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
   (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
   
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1550,19): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(783,39): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
   (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
   
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1561,1): warning C4554: '<<': 연산자 우선 순위에 오류가 있는지 확인하세요. 괄호를 사용하여 우선 순위를 명확하게 지정하세요.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(788,39): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
   (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
   
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1602,14): warning C4244: '초기화 중': '__int64'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(793,39): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
   (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
   
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1708,11): warning C4244: '초기화 중': 'double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(798,39): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
   (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
   
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(3193,53): warning C4267: '=': 'size_t'에서 'short'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(805,41): warning C4244: '인수': 'unsigned short'에서 'byte8'(으)로 변환하면서 데이터가 손실될 수 있습니다.
   (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
   
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(3205,13): warning C4018: '<=': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(806,38): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
   (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
   
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(3243,28): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(807,29): warning C4244: '인수': 'unsigned short'에서 'byte8'(으)로 변환하면서 데이터가 손실될 수 있습니다.
   (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
   
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(3253,28): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(809,41): warning C4244: '인수': 'unsigned short'에서 'byte8'(으)로 변환하면서 데이터가 손실될 수 있습니다.
   (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
   
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(339,28): warning C4267: '=': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(831,42): warning C4244: '인수': 'unsigned short'에서 'byte8'(으)로 변환하면서 데이터가 손실될 수 있습니다.
   (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
-  D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(339,28):
-  템플릿 인스턴스화 컨텍스트(가장 오래된 인스턴스화 컨텍스트)가
-  	D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1651,138):
-  	컴파일되는 클래스 템플릿 인스턴스화 'freemem::ArrGraph<unsigned int,unsigned int>'에 대한 참조를 확인하세요.
-  	D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(327,8):
-  	클래스 템플릿 멤버 함수 'void freemem::ArrGraph<unsigned int,unsigned int>::Compile(void)'을(를) 컴파일하는 중입니다.
-  		D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1681,22):
-  		'freemem::FM_System0::CreateFm1SizeTable'에서 'freemem::ArrGraph<unsigned int,unsigned int>::Compile'에 대한 첫 번째 참조를 확인하세요.
   
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(404,28): warning C4267: '=': 'size_t'에서 'T'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(404,28): warning C4267:         with
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(404,28): warning C4267:         [
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(404,28): warning C4267:             T=unsigned int
-D:\Dev\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(404,28): warning C4267:         ]
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(836,42): warning C4244: '인수': 'unsigned short'에서 'byte8'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(837,40): warning C4244: '인수': 'unsigned short'에서 'byte8'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(847,39): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(852,39): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(857,39): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(862,39): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(867,39): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(872,39): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(877,39): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(884,41): warning C4244: '인수': 'unsigned short'에서 'byte8'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(885,38): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(886,29): warning C4244: '인수': 'unsigned short'에서 'byte8'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(888,41): warning C4244: '인수': 'unsigned short'에서 'byte8'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(908,23): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(917,17): warning C4554: '<<': 연산자 우선 순위에 오류가 있는지 확인하세요. 괄호를 사용하여 우선 순위를 명확하게 지정하세요.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(984,15): warning C4244: '초기화 중': '__int64'에서 'si32'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(985,14): warning C4018: '>=': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(987,13): warning C4244: '초기화 중': '__int64'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(991,22): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1004,15): warning C4244: '초기화 중': '__int64'에서 'si32'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1005,14): warning C4018: '>=': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1007,18): warning C4244: '초기화 중': '__int64'에서 'si32'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1040,40): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1045,40): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1050,40): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1055,40): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1060,40): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1067,40): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1074,40): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1068,15): warning C4101: 'v2' :참조되지 않은 지역 변수입니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1075,15): warning C4101: 'v2' :참조되지 않은 지역 변수입니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1775,22): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1823,30): warning C4554: '<<': 연산자 우선 순위에 오류가 있는지 확인하세요. 괄호를 사용하여 우선 순위를 명확하게 지정하세요.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1918,27): warning C4554: '<<': 연산자 우선 순위에 오류가 있는지 확인하세요. 괄호를 사용하여 우선 순위를 명확하게 지정하세요.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(2920,12): warning C4018: '<=': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(2963,27): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(2973,27): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\fmtest.cpp(29,22): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1531,20): warning C4267: '=': 'size_t'에서 'unsigned int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+      C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1531,20):
+      템플릿 인스턴스화 컨텍스트(가장 오래된 인스턴스화 컨텍스트)가
+          C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1713,15):
+          컴파일되는 함수 템플릿 인스턴스화 'RangeArr<int,int> AddRangeArr<int,int>(unsigned int,vecarr<range<int,int>>)'에 대한 참조를 확인하세요.
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1558,20): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1583,22): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1599,22): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1415,20): warning C4267: '=': 'size_t'에서 'unsigned short'(으)로 변환하면서 데이터가 손실될 수 있습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+      C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1415,20):
+      템플릿 인스턴스화 컨텍스트(가장 오래된 인스턴스화 컨텍스트)가
+          C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1713,15):
+          컴파일되는 함수 템플릿 인스턴스화 'RangeArr<int,int> AddRangeArr<int,int>(unsigned int,vecarr<range<int,int>>)'에 대한 참조를 확인하세요.
+          C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1591,14):
+          컴파일되는 함수 템플릿 인스턴스화 'RangeArr_node<IndexType,ValueType> AddRangeArrNode<int,int>(vecarr<range<IndexType,ValueType>>)'에 대한 참조를 확인하세요.
+          with
+          [
+              IndexType=int,
+              ValueType=int
+          ]
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1465,22): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
+  (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
+  
+C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_FreeMemory.h(1481,22): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
   (소스 파일 'Editing/fmtest.cpp'을(를) 컴파일하는 중)
   
   코드를 생성하고 있습니다.
-  3 of 23 functions (13.0%) were compiled, the rest were copied from previous compilation.
-    2 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+  3 of 203 functions ( 1.5%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    2 functions had inline decision re-evaluated but remain unchanged
   코드를 생성했습니다.
-  ALL_Utillity.vcxproj -> D:\Dev\ALL_Utillity\x64\Release\ALL_Utillity.exe
+  ALL_Utillity.vcxproj -> C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\x64\Release\ALL_Utillity.exe

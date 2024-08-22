@@ -67,7 +67,11 @@ class lcstr
 			Init(len + 1, islocal);
 		}
 
+#if defined(__GNUC__)
 		strcpy(Arr, str);
+#elif defined (_MSC_VER)
+		strcpy_s(Arr, len, str);
+#endif
 		up = len - 1;
 	}
 
@@ -236,7 +240,11 @@ class lwstr
 			Init(len + 1, islocal);
 		}
 
+#if defined(__GNUC__)
 		wcscpy(Arr, str);
+#elif defined (_MSC_VER)
+		wcscpy_s(Arr, len, str);
+#endif
 		up = len - 1;
 	}
 
