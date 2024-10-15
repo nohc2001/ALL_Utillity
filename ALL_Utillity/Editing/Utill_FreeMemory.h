@@ -1,6 +1,9 @@
 #ifndef H_UTILL_FREEMEMORY
 #define H_UTILL_FREEMEMORY
 
+#define FM_GET_NONRELEASE_HEAPPTR
+//#define FM_NONRELEASE_HEAPCHECK
+
 #include <math.h>
 #include <thread>
 #include <iostream>
@@ -148,6 +151,18 @@ inline void CheckRemainMemorySize()
 	unsigned int RemainMemSiz = (unsigned int)(start - &end);
 	cout << "RemainMemSiz : " << RemainMemSiz << " byte \t(" << (float)RemainMemSiz / 1000.0f << " KB \t(" << (float)RemainMemSiz / 1000000.0f << " MB \t(" << (float)RemainMemSiz / 1000000000.0f << " GB ) ) )" << endl;
 	delete start;
+}
+
+__forceinline ui32 isP(si32 n) { return !!(0 < n); }
+__forceinline ui32 isP0(si32 n) { return !(0 > n); }
+__forceinline ui32 isN(si32 n) { return !!(0 > n); }
+__forceinline ui32 isN0(si32 n) { return !(0 < n); }
+
+__forceinline ui32 sign_shiftL(ui32 d, si32 n) {
+	return (d << n) * isP0(n) + (d >> n) * isN(n);
+}
+__forceinline ui32 sign_shiftR(ui32 d, si32 n) {
+	return (d >> n) * isP0(n) + (d << n) * isN(n);
 }
 
 // siz : 4KB
@@ -488,7 +503,7 @@ struct HeapLumps {
 HeapLumps fmhl;
 
 template<typename T> void ImmortalExpendArr::push_back(T value) {
-	fmhl.HeapDump();
+	//fmhl.HeapDump();
 
 	if (up + 1 > capacity) {
 		// newalloc
@@ -684,12 +699,19 @@ struct FmFlagPage {
 	unsigned int extradata = 0;
 	unsigned int Fup = 0;
 
-	__forceinline ui32 GetBitPerLifeFlag_pow2() {
+	__forceinline ui32 GetBytePerLifeFlag_pow2() {
 		return (extradata & 0x000000FF);
 	}
 
-	__forceinline ui32 GetBitPerLifeFlag() {
+	__forceinline ui32 GetBytePerLifeFlag() {
 		return 1 << (extradata & 0x000000FF);
+	}
+
+	__forceinline ui32 GetFitSiz(ui32 size) {
+		const int bplf = GetBytePerLifeFlag_pow2();
+		ui32 lm = 1 << (bplf);
+		ui32 p = (size & (lm - 1));
+		return size - p + !!p * lm;
 	}
 
 	__forceinline void SetlcenData(unsigned int sindex, byte8 data) {
@@ -701,22 +723,34 @@ struct FmFlagPage {
 		}
 	}
 
+	__forceinline bool GetFlag(unsigned int dataindex) {
+		const int bplf = GetBytePerLifeFlag_pow2();
+		ui32 temp = dataindex >> bplf;
+		ui32 byteindex = temp >> 3;
+		ui32 bitindex = temp & 7;
+		byte8 flagMask = (byte8)(1 << bitindex);
+		byte8 chbyte = ((byte8*)flagData)[byteindex];
+		return chbyte & flagMask;
+	}
+
 	void Init(unsigned int _BytePerLifeFlag)
 	{
 		//save bit per life flag
 		extradata &= 0xFFFFFF00;
-		extradata |= (ui32)(3 + log2(_BytePerLifeFlag));
+		extradata |= (ui32)(log2(_BytePerLifeFlag));
 
 		page = (SmallPage*)fmhl.AllocNewSinglePage();
-		ui32 flagmem_cap = DataCapacity / GetBitPerLifeFlag();
+		ui32 flagmem_cap = DataCapacity / GetBytePerLifeFlag();
+		flagmem_cap = flagmem_cap >> 3;
 		if (flagmem_cap == 0) {
 			flagmem_cap = 1;
 		}
+		const int id = GetID();
 		flagData = (void*)fmhl.Allocate_ImortalMemory(flagmem_cap);
 		if (flagData != nullptr) {
 			byte8* fdarr = (byte8*)flagData;
 			for (int i = 0; i < flagmem_cap; ++i) {
-				fdarr[0] = 0;
+				fdarr[i] = 0;
 			}
 		}
 		
@@ -724,24 +758,44 @@ struct FmFlagPage {
 		if (LCENData != nullptr) {
 			byte8* lcenarr = (byte8*)LCENData;
 			for (int i = 0; i < flagmem_cap >> 2; ++i) {
-				lcenarr[0] = 15; //0 mean no rest space, 15 : 15 rest space or 16 rest space
+				lcenarr[i] = 15; //0 mean no rest space, 15 : 15 rest space or 16 rest space
 			}
 		}
 		Fup = 0;
 	}
 
+	ui32 GetID() {
+		ui32 A = 0;
+		ui32 B = 0;
+		for (int i = 0; i < fmhl.Lumps->size(); ++i) {
+			byte8* ptr = fmhl.Lumps->at<byte8*>(i);
+			si32 n = page->Data - ptr;
+			n = n >> 12;
+			if (0 <= n && n < 512) {
+				A = i;
+				B = n;
+				break;
+			}
+		}
+
+		ui32 ID = (A << 9) + B;
+		return ID;
+	}
+
 	void SetFlag1(unsigned int DataStart, unsigned int size) {
 		//update flag
-		ui32 temp = DataStart >> GetBitPerLifeFlag_pow2();
-		ui32 temp2 = (DataStart + size) >> GetBitPerLifeFlag_pow2();
+		const ui32 id = GetID();
+		const int bplf = GetBytePerLifeFlag_pow2();
+		ui32 temp = DataStart >> bplf;
+		ui32 temp2 = (DataStart + size-1) >> bplf;
 		ui32 startflagindex = temp >> 3;
-		ui32 startflag_bitindex = temp & 15;
+		ui32 startflag_bitindex = temp & 7;
 		ui32 endflagindex = temp2 >> 3;
-		ui32 endflag_bitindex = temp2 & 15;
+		ui32 endflag_bitindex = temp2 & 7;
 
 		ui32 deltaflagindex = endflagindex - startflagindex;
 		byte8* fdata = ((byte8*)flagData);
-		byte8 startFlagMask = -(byte8)(2 << startflag_bitindex);
+		byte8 startFlagMask = -(byte8)(1 << startflag_bitindex);
 		byte8 endFlagMask = (byte8)(2 << endflag_bitindex) - 1;
 		ui16* u16_fdata = (ui16*)fdata;
 		ui32 startLCENindex = startflagindex >> 2;
@@ -760,9 +814,9 @@ struct FmFlagPage {
 		}
 
 		fdata[startflagindex] |= startFlagMask;
-		fdata[endflagindex] |= ~endFlagMask;
+		fdata[endflagindex] |= endFlagMask;
 
-		ui32 simdState = _tzcnt_u32(deltaflagindex);
+		/*ui32 simdState = _tzcnt_u32(deltaflagindex-1);
 		switch (simdState) {
 		case 0:
 			for (int i = startflagindex + 1; i < endflagindex; ++i) {
@@ -799,6 +853,60 @@ struct FmFlagPage {
 				*((__m512*)&fdata[i]) = max512.simd;
 			}
 			break;
+		}*/
+		ui32 deltaF = deltaflagindex - 1;
+		ui32 biggest1_Loc = 0;
+		ui32 i = startflagindex + 1;
+	FMFLAGPAGE_SETFLAG0_SIMDFILL_LZCNT:
+		biggest1_Loc = 32 - __lzcnt(deltaF);
+		switch (biggest1_Loc) {
+		case 1:
+			fdata[i] = 255;
+			deltaF -= 1;
+			i += 1;
+			goto FMFLAGPAGE_SETFLAG0_SIMDFILL_LZCNT;
+		case 2:
+			*((ui16*)&fdata[i]) = 65535;
+			deltaF -= 2;
+			i += 2;
+			goto FMFLAGPAGE_SETFLAG0_SIMDFILL_LZCNT;
+		case 3:
+			*((ui32*)&fdata[i]) = 4294967295;
+			deltaF -= 4;
+			i += 4;
+			goto FMFLAGPAGE_SETFLAG0_SIMDFILL_LZCNT;
+		case 4:
+			*((ui64*)&fdata[i]) = ~0;
+			deltaF -= 8;
+			i += 8;
+			goto FMFLAGPAGE_SETFLAG0_SIMDFILL_LZCNT;
+		case 5:
+			*((__m128*) & fdata[i]) = max128.simd;
+			deltaF -= 16;
+			i += 16;
+			goto FMFLAGPAGE_SETFLAG0_SIMDFILL_LZCNT;
+		case 6:
+			*((__m256*) & fdata[i]) = max256.simd;
+			deltaF -= 32;
+			i += 32;
+			goto FMFLAGPAGE_SETFLAG0_SIMDFILL_LZCNT;
+		case 7:
+			*((__m512*)&fdata[i]) = max512.simd;
+			deltaF -= 64;
+			i += 64;
+			goto FMFLAGPAGE_SETFLAG0_SIMDFILL_LZCNT;
+		case 8:
+		case 9:
+		case 10:
+		case 11:
+		case 12:
+		case 13:
+			for (int k = 0; k < deltaF; k += 64) {
+				*((__m512*)&fdata[i]) = max512.simd;
+				i += 64;
+			}
+			deltaF = deltaF % 64;
+			goto FMFLAGPAGE_SETFLAG0_SIMDFILL_LZCNT;
 		}
 
 		//LCEN Data Update
@@ -811,20 +919,22 @@ struct FmFlagPage {
 
 	void SetFlag0(unsigned int DataStart, unsigned int size) {
 		//update flag
-		ui32 temp = DataStart >> GetBitPerLifeFlag_pow2();
-		ui32 temp2 = (DataStart + size) >> GetBitPerLifeFlag_pow2();
+		const int bplf = GetBytePerLifeFlag_pow2();
+		ui32 temp = (DataStart >> bplf);
+		ui32 temp2 = ((DataStart + size - 1) >> bplf);
 		ui32 startflagindex = temp >> 3;
-		ui32 startflag_bitindex = temp & 15;
+		ui32 startflag_bitindex = temp & 7; // 왜 15임?
 		ui32 endflagindex = temp2 >> 3;
-		ui32 endflag_bitindex = temp2 & 15;
+		ui32 endflag_bitindex = temp2 & 7;
 
 		ui32 deltaflagindex = endflagindex - startflagindex;
 		byte8* fdata = ((byte8*)flagData);
-		byte8 startFlagMask = ~(-(byte8)(2 << startflag_bitindex));
+		byte8 startFlagMask = ~(-(byte8)(1 << startflag_bitindex));
 		byte8 endFlagMask = ~((byte8)((2 << endflag_bitindex) - 1));
 		ui16* u16_fdata = (ui16*)fdata;
 		ui32 startLCENindex = startflagindex >> 2;
 		ui32 endLCENindex = endflagindex >> 2;
+
 		switch (deltaflagindex) {
 		case 0:
 			fdata[startflagindex] &= (startFlagMask | endFlagMask);
@@ -839,9 +949,10 @@ struct FmFlagPage {
 		}
 
 		fdata[startflagindex] &= startFlagMask;
-		fdata[endflagindex] &= ~endFlagMask;
+		fdata[endflagindex] &= endFlagMask;
 
-		ui32 simdState = _tzcnt_u32(deltaflagindex);
+		/*
+		* ui32 simdState = _tzcnt_u32(deltaflagindex);
 		switch (simdState) {
 		case 0:
 			for (int i = startflagindex + 1; i < endflagindex; ++i) {
@@ -879,6 +990,61 @@ struct FmFlagPage {
 			}
 			break;
 		}
+		*/
+		ui32 deltaF = deltaflagindex - 1;
+		ui32 biggest1_Loc = 0;
+		ui32 i = startflagindex + 1;
+	FMFLAGPAGE_SETFLAG0_SIMDFILL_LZCNT:
+		biggest1_Loc = 32 - __lzcnt(deltaF);
+		switch (biggest1_Loc) {
+		case 1:
+			fdata[i] = 0;
+			deltaF -= 1;
+			i += 1;
+			goto FMFLAGPAGE_SETFLAG0_SIMDFILL_LZCNT;
+		case 2:
+			*((ui16*)&fdata[i]) = 0;
+			deltaF -= 2;
+			i += 2;
+			goto FMFLAGPAGE_SETFLAG0_SIMDFILL_LZCNT;
+		case 3:
+			*((ui32*)&fdata[i]) = 0;
+			deltaF -= 4;
+			i += 4;
+			goto FMFLAGPAGE_SETFLAG0_SIMDFILL_LZCNT;
+		case 4:
+			*((ui64*)&fdata[i]) = 0;
+			deltaF -= 8;
+			i += 8;
+			goto FMFLAGPAGE_SETFLAG0_SIMDFILL_LZCNT;
+		case 5:
+			*((__m128*) & fdata[i]) = zero128.simd;
+			deltaF -= 16;
+			i += 16;
+			goto FMFLAGPAGE_SETFLAG0_SIMDFILL_LZCNT;
+		case 6:
+			*((__m256*) & fdata[i]) = zero256.simd;
+			deltaF -= 32;
+			i += 32;
+			goto FMFLAGPAGE_SETFLAG0_SIMDFILL_LZCNT;
+		case 7:
+			*((__m512*)&fdata[i]) = zero512.simd;
+			deltaF -= 64;
+			i += 64;
+			goto FMFLAGPAGE_SETFLAG0_SIMDFILL_LZCNT;
+		case 8:
+		case 9:
+		case 10:
+		case 11:
+		case 12:
+		case 13:
+			for (int k = 0; k < deltaF; k += 64) {
+				*((__m512*)&fdata[i]) = zero512.simd;
+				i += 64;
+			}
+			deltaF = deltaF % 64;
+			goto FMFLAGPAGE_SETFLAG0_SIMDFILL_LZCNT;
+		}
 
 		//LCEN Data Update
 		SetlcenData(startLCENindex, _tzcnt_u16(u16_fdata[startLCENindex]));
@@ -891,31 +1057,32 @@ struct FmFlagPage {
 	void* _saveNew(int size)
 	{
 		void* ptr = (byte8*)page + Fup;
+		ui32 fitsiz = GetFitSiz(size);
 		unsigned int preFup = Fup;
-		Fup += size;
-		if (Fup >= SMALL_PAGE_SIZE)
+		Fup += fitsiz;
+		if (Fup > SMALL_PAGE_SIZE)
 		{
-			Fup -= size;
+			Fup -= fitsiz;
 
 			//Save Mode1 ()
-			if (size < (16 << GetBitPerLifeFlag_pow2()))
+			if (fitsiz < (16 << GetBytePerLifeFlag_pow2()))
 			{
 				byte8* lcenarr = (byte8*)LCENData;
-				ui32 sd8 = size >> 3;
-				ui32 flagmem_cap = DataCapacity / GetBitPerLifeFlag();
+				ui32 sd8 = fitsiz >> 3;
+				ui32 flagmem_cap = DataCapacity / GetBytePerLifeFlag();
 				ui32 index = 0;
 				ui32 rest = 0;
 				for (int i = 0; i < flagmem_cap >> 2; ++i) {
 					rest = lcenarr[i] & 0x0F;
 					if (rest >= sd8) {
 						index = i << 1;
-						index = GetBitPerLifeFlag() * (index << 1) - rest;
+						index = GetBytePerLifeFlag() * (index << 1) - rest;
 						goto FMFLAGPAGE_SAVENEW_SAVEMODE1_ALLOC_SUCESS;
 					}
 					rest = (lcenarr[i] & 0xF0) >> 4;
 					if (rest >= sd8) {
 						index = i << 1 + 1;
-						index = GetBitPerLifeFlag() * (index << 1) - rest;
+						index = GetBytePerLifeFlag() * (index << 1) - rest;
 						goto FMFLAGPAGE_SAVENEW_SAVEMODE1_ALLOC_SUCESS;
 					}
 				}
@@ -927,16 +1094,16 @@ struct FmFlagPage {
 				byte8* ptr = (byte8*)page + rest;
 				ui8* tipptr = (ui8*)ptr;
 
-				if (size >= 4) {
+				if (fitsiz >= 4) {
 				FMFLAGPAGE_SAVENEW_SAVEMODE1_ALLOC_SUCESS_FILLHOLE:
 					tipptr += *(ui16*)tipptr;
 					si64 delta = (si64)tipptr - (si64)ptr;
 					if (delta > 0) {
-						switch (size) {
+						switch (fitsiz) {
 						case 1:
 						case 2:
 						case 3:
-							for (int i = 0; i < size; ++i) {
+							for (int i = 0; i < fitsiz; ++i) {
 								((byte8*)ptr)[i] = 255;
 							}
 							goto FMFLAGPAGE_SAVENEW_SETFLAG;
@@ -951,7 +1118,7 @@ struct FmFlagPage {
 				}
 
 			FMFLAGPAGE_SAVENEW_SETFLAG:
-				SetFlag1(index, size);
+				SetFlag1(index, fitsiz);
 				return ptr;
 			}
 			else {
@@ -961,42 +1128,117 @@ struct FmFlagPage {
 		}
 		//Fast Mode
 		//change flag
-		SetFlag1(preFup, size);
+		SetFlag1(preFup, fitsiz);
 		return ptr;
 	}
 
 	void* _fastNew(int size)
 	{
+		const ui32 id = GetID();
 		void* ptr = (byte8*)page + Fup;
-		ui32 postFup = Fup + size;
-		if (postFup >= SMALL_PAGE_SIZE)
+		ui32 fitsiz = GetFitSiz(size);
+		ui32 postFup = Fup + fitsiz;
+		if (postFup > SMALL_PAGE_SIZE)
 		{
 			return nullptr;
 		}
 		//Fast Mode
 		//change flag
-		SetFlag1(Fup, size);
+		
+
+		SetFlag1(Fup, fitsiz);
+		
+		/*if (id == 22) {
+			cout << "New Start" << endl;
+			dbg_lifecheck();
+		}*/
+
 		Fup = postFup;
 		return ptr;
 	}
 
 	bool _Delete(void* ptr, ui32 size) {
-		si32 offset = (byte8*)ptr - (byte8*)page + size;
-		if (offset >= Fup || offset < 0) return false;
-
+		const ui32 id = GetID();
+		ui32 fitsiz = GetFitSiz(size);
+		si32 offset_s = (byte8*)ptr - (byte8*)page;
+		si32 offset_e = offset_s + fitsiz - 1;
+		if (offset_e >= Fup || offset_s < 0) return false;
 		int index = (byte8*)ptr - (byte8*)page;
-		SetFlag0(index, size);
+		
+		SetFlag0(index, fitsiz);
 
-		if(size <= 3){
-			for (int i = 0; i < size; ++i) {
-				((byte8*)ptr)[i] = 255;
+		/*if (id == 22) {
+			cout << "Delete Start" << endl;
+			dbg_lifecheck();
+		}*/
+		if (index + fitsiz >= Fup) {
+			Fup = index;
+			if (index - 1 < 0) return true;
+			si32 pivot = index - 1;
+		
+			if ((pivot >= 0) && (GetFlag(pivot) == false && page->Data[pivot] == 255)) {
+				Fup -= 1;
+				pivot -= 1;
+			FLAGPAGE_DELETE_FUP_UPDATE_1b:
+				if ((pivot >= 0) && (GetFlag(pivot) == false && page->Data[pivot] == 255) ) {
+					Fup -= 1;
+					pivot -= 1;
+					goto FLAGPAGE_DELETE_FUP_UPDATE_1b;
+				}
+				else {
+					return true;
+				}
 			}
-			return true;
+
+			pivot -= 1;
+		FLAGPAGE_DELETE_FUP_UPDATE:
+			ui16 delta = *(ui16*)&page->Data[pivot];
+
+			//check index byte is allocated
+			bool allocated = GetFlag(pivot);
+
+			if (allocated == false) {
+				ui16 delta = *(ui16*)&page->Data[pivot];
+				
+				if (delta == 0) {
+					//error! hole meta data is not exist.
+					for (int i = 0; i < SMALL_PAGE_SIZE; i += 16) {
+						for (int k = 0; k < 16; k+=2) {
+							if (GetFlag(i + k) == true) {
+								cout << "X, ";
+								continue;
+							}
+							else if (i + k == pivot) {
+								cout << "[" << *(short*)&page->Data[i + k] << "]";
+								continue;
+							}
+							cout << *(short*)&page->Data[i + k] << ", ";
+						}
+						cout << endl;
+					}
+					_CrtDbgBreak();
+					return false;
+				}
+				Fup -= delta;
+				pivot = Fup - 2;
+				if (pivot >= 0) {
+					goto FLAGPAGE_DELETE_FUP_UPDATE;
+				}
+				else Fup = 0;
+			}
 		}
 		else {
-			*(ui16*)ptr = (ui16)size;
-			*(ui16*)((byte8*)ptr + size - 1) = (ui16)size;
-			return true;
+			if (fitsiz <= 3) {
+				for (int i = 0; i < fitsiz; ++i) {
+					((byte8*)ptr)[i] = 255;
+				}
+				return true;
+			}
+			else {
+				*(ui16*)ptr = (ui16)fitsiz;
+				*(ui16*)((byte8*)ptr + fitsiz - 2) = (ui16)fitsiz;
+				return true;
+			}
 		}
 	}
 
@@ -1005,16 +1247,17 @@ struct FmFlagPage {
 		if (offset >= Fup || offset < 0) return false;
 
 		si32 DataStart = (byte8*)ptr - (byte8*)page;
-		ui32 temp = DataStart >> GetBitPerLifeFlag_pow2();
-		ui32 temp2 = (DataStart + size) >> GetBitPerLifeFlag_pow2();
+		const int bplf = GetBytePerLifeFlag_pow2();
+		ui32 temp = DataStart >> bplf;
+		ui32 temp2 = (DataStart + size-1) >> bplf;
 		ui32 startflagindex = temp >> 3;
-		ui32 startflag_bitindex = temp & 15;
+		ui32 startflag_bitindex = temp & 7;
 		ui32 endflagindex = temp2 >> 3;
-		ui32 endflag_bitindex = temp2 & 15;
+		ui32 endflag_bitindex = temp2 & 7;
 
 		ui32 deltaflagindex = endflagindex - startflagindex;
 		byte8* fdata = ((byte8*)flagData);
-		byte8 startFlagMask = -(byte8)(2 << startflag_bitindex);
+		byte8 startFlagMask = -(byte8)(1 << startflag_bitindex);
 		byte8 endFlagMask = (byte8)(2 << endflag_bitindex) - 1;
 
 		switch (deltaflagindex) {
@@ -1034,7 +1277,7 @@ struct FmFlagPage {
 		}
 
 		if (_pdep_u32(fdata[startflagindex], startFlagMask) == startFlagMask && _pdep_u32(fdata[startflagindex], endFlagMask) == endFlagMask) {
-			ui32 simdState = _tzcnt_u32(deltaflagindex);
+			ui32 simdState = _tzcnt_u32(deltaflagindex-1);
 			switch (simdState) {
 			case 0:
 				for (int i = startflagindex + 1; i < endflagindex; ++i) {
@@ -1088,24 +1331,25 @@ struct FmFlagPage {
 	void dbg_lifecheck()
 	{
 		int count = 0;
-		cout << (int*)page << " : \t";
-		for (int i = 0; i < SMALL_PAGE_SIZE; i += GetBitPerLifeFlag())
+		cout << "FlagPage_" << GetID() << endl;
+		const int BytePerLifeFlag = GetBytePerLifeFlag();
+		for (int i = 0; i < SMALL_PAGE_SIZE; i += BytePerLifeFlag)
 		{
-			switch (isAllocated((byte8*)page + i, GetBitPerLifeFlag()))
+			if (count % 32 == 0) {
+				cout << (int*)&((byte8*)page)[i] << " : \t";
+			}
+			switch (GetFlag(i))
 			{
 			case true:
-				cout << '_';
-				break;
-			case false:
 				cout << '1';
 				break;
+			case false:
+				cout << '_';
+				break;
 			}
-			if (count >= 32)
-			{
+
+			if (count % 32 == 31) {
 				cout << endl;
-				int ad = i;
-				cout << (int*)&((byte8*)page)[ad] << " : \t";
-				count = 0;
 			}
 
 			++count;
@@ -1115,6 +1359,7 @@ struct FmFlagPage {
 };
 
 //16
+vecarr<vecarr<vecarr<uint64_t>>> checkarr;
 struct FmFlagLayer {
 	ImmortalExpendArr* flagPageArr;
 	ui32 bytePerFlag = 1;
@@ -1134,14 +1379,40 @@ struct FmFlagLayer {
 	void* _fastNew(ui32 size) {
 		for (int i = 0; i < flagPageArr->up; ++i) {
 			void* rptr = ((FmFlagPage**)flagPageArr->Arr)[i]->_fastNew(size);
-			if (rptr != nullptr) return rptr;
+			if (rptr != nullptr) {
+#ifdef FM_NONRELEASE_HEAPCHECK
+				vecarr<uint64_t>* chvec = &checkarr.at(log2(bytePerFlag)).at(fm1->at(i)->id);
+				for (int k = 0; k < chvec->size(); ++k) {
+					uint64_t rated = reinterpret_cast<uint64_t>(rptr) - reinterpret_cast<uint64_t>(fm1->at(i)->DataPtr);
+					if (rated == chvec->at(k)) {
+						//cout << "break;" << endl;
+						_CrtDbgBreak();
+					}
+					break;
+				}
+#endif
+				return rptr;
+			}
 		}
 
 		// require new flagpage
 		FmFlagPage* flagpage = (FmFlagPage*)fmhl.Allocate_ImortalMemory(sizeof(FmFlagPage));
 		flagpage->Init(bytePerFlag);
 		flagPageArr->push_back<FmFlagPage*>(flagpage);
-		return flagpage->_fastNew(size);
+		//flagpage->dbg_lifecheck();
+		void* ptr = flagpage->_fastNew(size);
+#ifdef FM_NONRELEASE_HEAPCHECK
+		vecarr<uint64_t>* chvec = &checkarr.at(log2(bytePerFlag)).at(flagpage->GetID());
+		for (int k = 0; k < chvec->size(); ++k) {
+			uint64_t rated = reinterpret_cast<uint64_t>(ptr) - reinterpret_cast<uint64_t>(flagpage->page);
+			if (rated == chvec->at(k)) {
+				//cout << "break;" << endl;
+				_CrtDbgBreak();
+			}
+			break;
+		}
+#endif
+		return ptr;
 	}
 
 	void* _saveNew(ui32 size) {
@@ -1158,10 +1429,22 @@ struct FmFlagLayer {
 	}
 
 	bool Delete(void* ptr, ui32 size) {
+		static int dbgc = 0;
 		for (int i = 0; i < flagPageArr->up; ++i) {
-			byte8* rptr = (byte8*)((FmFlagPage**)flagPageArr->Arr)[i]->page;
-			if ((byte8*)ptr - rptr < SMALL_PAGE_SIZE) {
-				return ((FmFlagPage*)rptr)->_Delete(ptr, size);
+			FmFlagPage* rptr = ((FmFlagPage**)flagPageArr->Arr)[i];
+			if (i == 0) dbgc += 1;
+			if ((byte8*)ptr - (byte8*)rptr->page < SMALL_PAGE_SIZE) {
+#ifdef FM_NONRELEASE_HEAPCHECK
+				vecarr<uint64_t>* chvec = &checkarr.at(log2(rptr->GetBitPerLifeFlag())).at(rptr->GetID());
+				for (int k = 0; k < chvec->size(); ++k) {
+					uint64_t rated = reinterpret_cast<uint64_t>(ptr) - reinterpret_cast<uint64_t>(rptr->page);
+					if (rated == chvec->at(k)) {
+						_CrtDbgBreak();
+					}
+					break;
+				}
+#endif
+				return rptr->_Delete(ptr, size);
 			}
 		}
 		return false;
@@ -1197,8 +1480,10 @@ template <typename IndexType, typename ValueType> struct range
 
 int getcost(int n, int size)
 {
-	int k = (n % size == 0) ? 0 : 1;
-	return (8 * size + 1) * (n / size + k);
+	ui32 k = !!(n % size);
+	ui32 dd = (n / size) + k;
+	ui32 r = (8 * size) * dd + dd;
+	return r;
 }
 
 int minarr(int siz, int* arr, int* indexout)
@@ -1674,6 +1959,43 @@ public:
 
 	}
 
+	void RECORD_NonReleaseHeapData() {
+#ifdef FM_GET_NONRELEASE_HEAPPTR
+		ofstream thout;
+		thout.open("Editing/fm_NonReleaseHeapData.txt");
+		for (int i = 0; i < 13; ++i) {
+			thout << "mulindex_: " << i << endl;
+			FmFlagLayer fm1 = UnderPageSiz_HeapDebugFM[i];
+			thout << "fmsiz: " << fm1.flagPageArr->size() << endl;
+			for (int k = 0; k < fm1.flagPageArr->size(); ++k) {
+				FmFlagPage* fm11 = fm1.flagPageArr->at<FmFlagPage*>(k);
+				thout << "ID : " << (ui64)fm11->GetID() << endl;
+
+				vecarr<int> addrs;
+				addrs.NULLState();
+				addrs.Init(8);
+				uint64_t pivot = reinterpret_cast<uint64_t>(fm11->page);
+				for (int i0 = 0; i0 < SMALL_PAGE_SIZE; i0 += fm11->GetBytePerLifeFlag())
+				{
+					if (fm11->isAllocated(fm11->page + i0, 1) == true) {
+						addrs.push_back(i0);
+						while (fm11->isAllocated(&(fm11->page->Data[0]) + i0, 1) == true) {
+							i0 += fm11->GetBytePerLifeFlag();
+						}
+					}
+				}
+
+				thout << "NonReleaseHeapNum_: " << addrs.size() << endl;
+				for (int i0 = 0; i0 < addrs.size(); ++i0) {
+					thout << addrs.at(i0) << " ";
+				}
+				thout << endl;
+				addrs.release();
+			}
+		}
+#endif
+	}
+
 	RangeArr<int, int> CreateFm1SizeTable()
 	{
 		RangeArr<int, int> sizeGraph;
@@ -1718,6 +2040,45 @@ public:
 
 	void SetHeapData()
 	{
+#ifdef FM_NONRELEASE_HEAPCHECK
+		checkarr.NULLState();
+		checkarr.Init(9);
+		checkarr.up = 8;
+		ifstream thin("Editing/fm_NonReleaseHeapData.txt");
+		string tempstr;
+		for (int i = 0; i < 8; ++i) {
+			thin >> tempstr; // mulindex_:
+			thin >> tempstr; // i
+			thin >> tempstr; // fmsiz:
+			int fmsiz = 0;
+			thin >> fmsiz;
+			checkarr.at(i).NULLState();
+			checkarr.at(i).Init(fmsiz + 1);
+			for (size_t k = 0; k < fmsiz; k++)
+			{
+				checkarr.at(i).at(k).NULLState();
+			}
+
+			for (int k = 0; k < fmsiz; ++k) {
+				thin >> tempstr; // id_:
+				int id = 0;
+				thin >> id;
+				vecarr<uint64_t>* chvec = &checkarr.at(i).at(id);
+				thin >> tempstr; //NonReleaseHeapNum_:
+				int intsiz = 0;
+				thin >> intsiz;
+				chvec->NULLState();
+				chvec->Init(intsiz + 1);
+				for (int u = 0; u < intsiz; ++u) {
+					uint64_t value;
+					thin >> value;
+					chvec->push_back(value);
+				}
+			}
+		}
+		thin.close();
+#endif
+
 		for (int i = 0; i < MAX_THREAD_COUNT; ++i) {
 			threadID_allocater[i] = 255;
 		}
@@ -1780,6 +2141,154 @@ public:
 				fm->dbg_lifecheck();
 			}
 		}
+	}
+
+	void* _inline_fastNew(ui32 byteSiz) {
+		if (byteSiz == 0) return nullptr;
+		ui32 cs = (!(byteSiz >> 12) << 1) + !(byteSiz >> 21);
+		/*
+		* cs == 11 -> UnderPageSiz_HeapDebugFM
+		 (cs == 10 is not exist..)
+		* cs == 01 -> UnderLumpSiz_HeapDebugFM
+		* cs == 00 -> OverLumpSiz_HeapDebugFM
+		*/
+
+		switch (cs) {
+		case 3:
+		case 2:
+		{
+			ui32 index = fm1_sizetable[byteSiz];
+
+			ui32 lm = 1 << index;
+			ui32 p = (byteSiz & (lm - 1));
+			ui32 fitsiz = byteSiz - p + !!p * lm;
+			
+			FmFlagLayer fml = UnderPageSiz_HeapDebugFM[index];
+			
+			for (int i = 0; i < fml.flagPageArr->up; ++i) {
+				FmFlagPage* fp = ((FmFlagPage**)fml.flagPageArr->Arr)[i];
+				void* lptr = (byte8*)fp->page + fp->Fup;
+
+				ui32 postFup = fp->Fup + fitsiz;
+				if (postFup >= SMALL_PAGE_SIZE)
+				{
+					return nullptr;
+				}
+				//Fast Mode
+				 
+				//fp->SetFlag1(fp->Fup, fitsiz);
+				ui32 DataStart = fp->Fup;
+				ui32 temp = DataStart >> index;
+				ui32 temp2 = (DataStart + fitsiz - 1) >> index;
+				ui32 startflagindex = temp >> 3;
+				ui32 endflagindex = temp2 >> 3;
+				ui32 startflag_bitindex = temp & 7;
+				ui32 endflag_bitindex = temp2 & 7;
+
+				ui32 deltaflagindex = endflagindex - startflagindex;
+				ui32 simdState = _tzcnt_u32(deltaflagindex);
+				byte8* fdata = ((byte8*)fp->flagData);
+				byte8 startFlagMask = -(byte8)(1 << startflag_bitindex);
+				byte8 endFlagMask = (byte8)(2 << endflag_bitindex) - 1;
+				ui16* u16_fdata = (ui16*)fdata;
+				//ui32 startLCENindex = startflagindex >> 2;
+				//ui32 endLCENindex = endflagindex >> 2;
+				switch (deltaflagindex) {
+				case 0:
+					fdata[startflagindex] |= (startFlagMask & endFlagMask);
+					//fp->SetlcenData(startLCENindex, _tzcnt_u16(u16_fdata[startLCENindex]));
+					goto FM_FASTNEW_FINISH_FLAGCHAGE;
+				case 1:
+					fdata[startflagindex] |= startFlagMask;
+					fdata[endflagindex] |= endFlagMask;
+					//fp->SetlcenData(startLCENindex, _tzcnt_u16(u16_fdata[startLCENindex]));
+					//fp->SetlcenData(endLCENindex, _tzcnt_u16(u16_fdata[startLCENindex]));
+					goto FM_FASTNEW_FINISH_FLAGCHAGE;
+				}
+
+				fdata[startflagindex] |= startFlagMask;
+				fdata[endflagindex] |= ~endFlagMask;
+
+				
+				switch (simdState) {
+				case 0:
+					for (int i = startflagindex + 1; i < endflagindex; ++i) {
+						fdata[i] = 255;
+					}
+					break;
+				case 1:
+					for (int i = startflagindex + 1; i < endflagindex; i += 2) {
+						*((ui16*)&fdata[i]) = 65535;
+					}
+					break;
+				case 2:
+					for (int i = startflagindex + 1; i < endflagindex; i += 4) {
+						*((ui32*)&fdata[i]) = 4294967295;
+					}
+					break;
+				case 3:
+					for (int i = startflagindex + 1; i < endflagindex; i += 8) {
+						*((ui64*)&fdata[i]) = ~0;
+					}
+					break;
+				case 4:
+					for (int i = startflagindex + 1; i < endflagindex; i += 16) {
+						*((__m128*) & fdata[i]) = max128.simd;
+					}
+					break;
+				case 5:
+					for (int i = startflagindex + 1; i < endflagindex; i += 32) {
+						*((__m256*) & fdata[i]) = max256.simd;
+					}
+					break;
+				case 6:
+					for (int i = startflagindex + 1; i < endflagindex; i += 64) {
+						*((__m512*)&fdata[i]) = max512.simd;
+					}
+					break;
+				}
+
+				//LCEN Data Update
+				/*fp->SetlcenData(startLCENindex, _tzcnt_u16(u16_fdata[startLCENindex]));
+				for (int i = startLCENindex + 1; i < endLCENindex; ++i) {
+					fp->SetlcenData(i, _tzcnt_u16(u16_fdata[startLCENindex]));
+				}
+				fp->SetlcenData(startLCENindex, _tzcnt_u16(u16_fdata[startLCENindex]));*/
+
+				//fp->SetFlag1(fp->Fup, fitsiz);
+
+				FM_FASTNEW_FINISH_FLAGCHAGE:
+				fp->Fup = postFup;
+				return lptr;
+			}
+
+			// require new flagpage
+			
+			FmFlagPage* flagpage = (FmFlagPage*)fmhl.Allocate_ImortalMemory(sizeof(FmFlagPage));
+			flagpage->Init(fml.bytePerFlag);
+			fml.flagPageArr->push_back<FmFlagPage*>(flagpage);
+			//flagpage->dbg_lifecheck();
+			void* ptr = flagpage->_fastNew(byteSiz);
+			return ptr;
+		}
+		case 1:
+		{
+			FmPageAlloc page_alloc;
+			page_alloc.capacity = (((byteSiz - 1) >> 12) + 1) << 12;
+			page_alloc.page = fmhl.AllocNewPages(page_alloc.capacity);
+			page_alloc.size = byteSiz;
+			UnderLumpSiz_HeapDebugFM->push_back<FmPageAlloc>(page_alloc);
+			return page_alloc.page;
+		}
+		case 0:
+		{
+			void* ptr = malloc(byteSiz);
+			OverLumpSiz_HeapDebugFM->push_back<void*>(ptr);
+			return ptr;
+		}
+		}
+
+		return nullptr;
 	}
 
 	void* _fastnew(ui32 byteSiz)
@@ -2116,6 +2625,7 @@ template < typename T > struct fmlist_node
 	fmlist_node < T >* next = nullptr;
 	fmlist_node < T >* prev = nullptr;
 };
+
 template < typename T > class fmlist
 {
 public:
