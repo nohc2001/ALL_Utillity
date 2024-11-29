@@ -78,7 +78,7 @@
     <ClInclude Include="Editing\arr_expend.h">
       <Filter>헤더 파일\Editing</Filter>
     </ClInclude>
-    <ClInclude Include="Editing\Utill_FreeMemory.h">
+    <ClInclude Include="Editing\Utill_FreeMemory2.h">
       <Filter>헤더 파일\Editing</Filter>
     </ClInclude>
     <ClInclude Include="Utill_BitOper.h">
@@ -92,6 +92,12 @@
     </ClInclude>
     <ClInclude Include="sen_tr.h">
       <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="CodeDependency.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="SIMD_Interface.h">
+      <Filter>헤더 파일\Editing</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -122,6 +128,9 @@
     <ClCompile Include="Editing\optimizedAsm.cpp">
       <Filter>헤더 파일\Editing</Filter>
     </ClCompile>
+    <ClCompile Include="CodeDependencyMaker.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Editing\fmtest_siztable">
@@ -132,5 +141,9 @@
     <CustomBuild Include="Editing\x64asm.asm">
       <Filter>헤더 파일\Editing</Filter>
     </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="cudatest.cu" />
+    <CudaCompile Include="cudatest.cuh" />
   </ItemGroup>
 </Project>

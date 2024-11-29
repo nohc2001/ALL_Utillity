@@ -18,6 +18,36 @@ ui32 up = 0;
 void FMTest0 () {
 	ui64 t0 = 0;
 	ui64 t1 = 0;
+
+	t0 = __rdtsc();
+	for (int i = 0; i < HEAPDBG_MAXCAP; ++i) {
+		ui32 sel = rand() % 2;
+		if (sel == 0) {
+			if (up < HEAPDBG_MAXCAP) {
+				ui32 r = 1 + (rand() % (SMALL_PAGE_SIZE - 1));
+				heapDbg[up].ptr = fm->_fastnew(r);
+				heapDbg[up].size = r;
+				up += 1;
+			}
+		}
+		else {
+			if (up == 0) continue;
+			ui32 r = rand() % up;
+			fm->_Delete(heapDbg[r].ptr, heapDbg[r].size);
+			for (int k = r; k < up; ++k)
+			{
+				heapDbg[k] = heapDbg[k + 1];
+			}
+			up -= 1;
+		}
+	}
+
+	for (int i = up - 1; i >= 0; --i) {
+		fm->_Delete(heapDbg[i].ptr, heapDbg[i].size);
+	}
+	up = 0;
+	t1 = __rdtsc();
+	cout << t1 - t0 << endl;
 	
 	t0 = __rdtsc();
 	for (int i = 0; i < HEAPDBG_MAXCAP; ++i) {
@@ -50,35 +80,7 @@ void FMTest0 () {
 	t1 = __rdtsc();
 	cout << t1 - t0 << endl;
 
-	t0 = __rdtsc();
-	for (int i = 0; i < HEAPDBG_MAXCAP; ++i) {
-		ui32 sel = rand() % 2;
-		if (sel == 0) {
-			if (up < HEAPDBG_MAXCAP) {
-				ui32 r = 1 + (rand() % (SMALL_PAGE_SIZE - 1));
-				heapDbg[up].ptr = fm->_fastnew(r);
-				heapDbg[up].size = r;
-				up += 1;
-			}
-		}
-		else {
-			if (up == 0) continue;
-			ui32 r = rand() % up;
-			fm->_Delete(heapDbg[r].ptr, heapDbg[r].size);
-			for (int k = r; k < up; ++k)
-			{
-				heapDbg[k] = heapDbg[k + 1];
-			}
-			up -= 1;
-		}
-	}
-
-	for (int i = up - 1; i >= 0; --i) {
-		fm->_Delete(heapDbg[i].ptr, heapDbg[i].size);
-	}
-	up = 0;
-	t1 = __rdtsc();
-	cout << t1 - t0 << endl;
+	
 }
 
 //fmtest 1 : single allocate speed measurement. 

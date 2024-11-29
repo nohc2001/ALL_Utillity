@@ -1,39 +1,39 @@
-﻿  wavetest.cpp
-C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\arr_expend.h(86,11): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-  (소스 파일 'Editing/wavetest.cpp'을(를) 컴파일하는 중)
+﻿  CodeDependencyMaker.cpp
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\include\driver_types.h(1334,1): warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
+  (소스 파일 'CodeDependencyMaker.cpp'을(를) 컴파일하는 중)
   
-C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\arr_expend.h(164,14): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-  (소스 파일 'Editing/wavetest.cpp'을(를) 컴파일하는 중)
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\include\driver_types.h(1334,1): warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
+  (소스 파일 'CodeDependencyMaker.cpp'을(를) 컴파일하는 중)
   
-C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\arr_expend.h(174,14): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-  (소스 파일 'Editing/wavetest.cpp'을(를) 컴파일하는 중)
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\include\driver_types.h(1334,1): warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
+  (소스 파일 'CodeDependencyMaker.cpp'을(를) 컴파일하는 중)
   
-C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\arr_expend.h(258,11): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-  (소스 파일 'Editing/wavetest.cpp'을(를) 컴파일하는 중)
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\include\driver_types.h(1334,1): warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
+  (소스 파일 'CodeDependencyMaker.cpp'을(를) 컴파일하는 중)
   
-C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\arr_expend.h(337,14): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-  (소스 파일 'Editing/wavetest.cpp'을(를) 컴파일하는 중)
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\include\cuda_runtime_api.h(12392,1): warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
+  (소스 파일 'CodeDependencyMaker.cpp'을(를) 컴파일하는 중)
   
-C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\arr_expend.h(347,14): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-  (소스 파일 'Editing/wavetest.cpp'을(를) 컴파일하는 중)
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\include\cuda_runtime_api.h(12392,1): warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
+  (소스 파일 'CodeDependencyMaker.cpp'을(를) 컴파일하는 중)
   
-C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_Wave.h(90,31): warning C4018: '<': signed 또는 unsigned가 일치하지 않습니다.
-  (소스 파일 'Editing/wavetest.cpp'을(를) 컴파일하는 중)
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\include\driver_types.h(1334,1): warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
+  (소스 파일 'CodeDependencyMaker.cpp'을(를) 컴파일하는 중)
   
-C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\arr_expend.h(461,14): warning C4267: '초기화 중': 'size_t'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-  (소스 파일 'Editing/wavetest.cpp'을(를) 컴파일하는 중)
-      C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\arr_expend.h(461,14):
-      템플릿 인스턴스화 컨텍스트(가장 오래된 인스턴스화 컨텍스트)가
-          C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_Wave.h(76,24):
-          컴파일되는 클래스 템플릿 인스턴스화 'vecarr<WaveSender>'에 대한 참조를 확인하세요.
-          C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\arr_expend.h(459,7):
-          클래스 템플릿 멤버 함수 'void vecarr<WaveSender>::erase(size_t)'을(를) 컴파일하는 중입니다.
-              C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\ALL_Utillity\Editing\Utill_Wave.h(87,33):
-              'WaveInstrument::Result'에서 'vecarr<WaveSender>::erase'에 대한 첫 번째 참조를 확인하세요.
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\include\driver_types.h(1334,1): warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
+  (소스 파일 'CodeDependencyMaker.cpp'을(를) 컴파일하는 중)
   
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\include\cuda_runtime_api.h(12392,1): warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
+  (소스 파일 'CodeDependencyMaker.cpp'을(를) 컴파일하는 중)
+  
+C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.6\include\cuda_runtime_api.h(12392,1): warning C4819: 현재 코드 페이지(949)에서 표시할 수 없는 문자가 파일에 들어 있습니다. 데이터가 손실되지 않게 하려면 해당 파일을 유니코드 형식으로 저장하십시오.
+  (소스 파일 'CodeDependencyMaker.cpp'을(를) 컴파일하는 중)
+  
+     C:\Users\nohc2\OneDrive\Desktop\WorkRoom\Dev\MainProjects\ALL_Utillity\x64\Release\ALL_Utillity.lib 라이브러리 및 C:\Users\nohc2\OneDrive\Desktop\WorkRoom\Dev\MainProjects\ALL_Utillity\x64\Release\ALL_Utillity.exp 개체를 생성하고 있습니다.
+LINK : warning LNK4098: 'LIBCMT' defaultlib가 다른 라이브러리와 충돌합니다. /NODEFAULTLIB:library를 사용하십시오.
   코드를 생성하고 있습니다.
-  6 of 6 functions (100.0%) were compiled.
-    5 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+  2 of 278 functions ( 0.7%) were compiled, the rest were copied from previous compilation.
+    1 functions were new in current compilation
+    3 functions had inline decision re-evaluated but remain unchanged
   코드를 생성했습니다.
-  ALL_Utillity.vcxproj -> C:\Users\nohc2\OneDrive\바탕 화면\WorkRoom\Dev\중요프로젝트\ALL_Utillity\x64\Release\ALL_Utillity.exe
+  ALL_Utillity.vcxproj -> C:\Users\nohc2\OneDrive\Desktop\WorkRoom\Dev\MainProjects\ALL_Utillity\x64\Release\ALL_Utillity.exe
